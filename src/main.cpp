@@ -34,57 +34,30 @@ namespace {
         };
 
         common::info info("This is the info's title", text_lines, text_generator);
-        
-        // kt::PlayerStruct.spr_items = bn::sprite_items::testturnaround;
-        bn::sprite_ptr turnaround_sprite = bn::sprite_items::testturnaround.create_sprite(0, 0);
-        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0));
-        // bn::regular_bg_ptr map_bg = bn::regular_bg_items::testmap.create_bg(0, 0);
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
         bn::regular_bg_map_cell valid_cell_1 = map_item.cell(0, 0);
-        // bn::regular_bg_map_cell valid_cell_2 = map_item.cell(1, 0);
+        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item);
         int valid_index_1 = bn::regular_bg_map_cell_info(valid_cell_1).tile_index();
-        // int valid_index_2 = bn::regular_bg_map_cell_info(valid_cell_2).tile_index();
-        bn::point player_pos(16, 16);
+        // bn::point player_pos(16, 16);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         // also NOTE that this jumps the player from cell to cell, doesn't move smoothly
         while(true) {
-            bn::point new_player_pos = player_pos;
             if (bn::keypad::left_pressed()) {
                 // NOTE these are now 2, not one (since my tiles are 16x16 and not 8x8)
-                new_player_pos.set_x(new_player_pos.x() - 2);
-                turnaround_sprite.set_tiles(bn::sprite_items::testturnaround.tiles_item().create_tiles(1));
+                // this will change when I implement smooth movement
+                test_player.move_left(valid_index_1);
             } else if (bn::keypad::right_pressed()) {
-                new_player_pos.set_x(new_player_pos.x() + 2);
-                turnaround_sprite.set_tiles(bn::sprite_items::testturnaround.tiles_item().create_tiles(2));
+                test_player.move_right(valid_index_1);
             }
             if (bn::keypad::up_pressed()) {
-                new_player_pos.set_y(new_player_pos.y() - 2);
-                turnaround_sprite.set_tiles(bn::sprite_items::testturnaround.tiles_item().create_tiles(3));
+                test_player.move_up(valid_index_1);
             } else if (bn::keypad::down_pressed()) {
-                new_player_pos.set_y(new_player_pos.y() + 2);
-                turnaround_sprite.set_tiles(bn::sprite_items::testturnaround.tiles_item().create_tiles(0));
+                test_player.move_down(valid_index_1);
             }
-
-            bn::regular_bg_map_cell new_map_cell = map_item.cell(new_player_pos);
-            int player_tile_index = bn::regular_bg_map_cell_info(new_map_cell).tile_index();
-            if (player_tile_index == valid_index_1) {
-                // bn::log(bn::string<4>("pink"));
-                player_pos = new_player_pos;
-            }
-            // if (player_tile_index == valid_index_2) {
-            //     bn::log(bn::string<5>("green"));
-            // }
-            // if (player_tile_index == valid_index_1 || player_tile_index == valid_index_2) {
-            //     player_pos = new_player_pos;
-            // }
-
             // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
-            bn::fixed player_sprite_x = (player_pos.x() * 8) - (map_item.dimensions().width() * 4) + 8;
-            bn::fixed player_sprite_y = (player_pos.y() * 8) - (map_item.dimensions().height() * 4) + 8;
-            turnaround_sprite.set_position(player_sprite_x, player_sprite_y);
             info.update();
             bn::core::update();
         }
