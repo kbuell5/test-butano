@@ -38,7 +38,8 @@ namespace {
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
         bn::regular_bg_map_cell valid_cell_1 = map_item.cell(0, 0);
-        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(8, 0), bn::sprite_items::turnaround32, map_item);
+        // NOTE changing this from 0, 0 to somewhere else causes the player to "jump" to the first movement, not sure why rn
+        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item);
         int valid_index_1 = bn::regular_bg_map_cell_info(valid_cell_1).tile_index();
         // bn::point player_pos(16, 16);
 
