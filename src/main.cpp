@@ -38,23 +38,23 @@ namespace {
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
         bn::regular_bg_map_cell valid_cell_1 = map_item.cell(0, 0);
-        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item);
+        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(8, 0), bn::sprite_items::turnaround32, map_item);
         int valid_index_1 = bn::regular_bg_map_cell_info(valid_cell_1).tile_index();
         // bn::point player_pos(16, 16);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         // also NOTE that this jumps the player from cell to cell, doesn't move smoothly
         while(true) {
-            if (bn::keypad::left_pressed()) {
+            if (bn::keypad::left_held()) {
                 // NOTE these are now 2, not one (since my tiles are 16x16 and not 8x8)
                 // this will change when I implement smooth movement
                 test_player.move_left(valid_index_1);
-            } else if (bn::keypad::right_pressed()) {
+            } else if (bn::keypad::right_held()) {
                 test_player.move_right(valid_index_1);
             }
-            if (bn::keypad::up_pressed()) {
+            if (bn::keypad::up_held()) {
                 test_player.move_up(valid_index_1);
-            } else if (bn::keypad::down_pressed()) {
+            } else if (bn::keypad::down_held()) {
                 test_player.move_down(valid_index_1);
             }
             // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
