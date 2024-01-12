@@ -11,6 +11,7 @@
 #include "bn_regular_bg_ptr.h"
 #include "bn_string_fwd.h"
 #include "bn_string.h"
+#include "bn_sprite_animate_actions.h"
 
 #include "common_info.h" // not sure about this one
 #include "common_variable_8x16_sprite_font.h"
@@ -39,24 +40,26 @@ namespace {
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
         bn::regular_bg_map_cell valid_cell_1 = map_item.cell(0, 0);
         // NOTE changing this from 0, 0 to somewhere else causes the player to "jump" to the first movement, not sure why rn
-        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item);
+        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item, bn::sprite_items::turnaround32.tiles_item());
         int valid_index_1 = bn::regular_bg_map_cell_info(valid_cell_1).tile_index();
-        // bn::point player_pos(16, 16);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
-        // also NOTE that this jumps the player from cell to cell, doesn't move smoothly
         while(true) {
             if (bn::keypad::left_held()) {
                 // NOTE these are now 2, not one (since my tiles are 16x16 and not 8x8)
                 // this will change when I implement smooth movement
                 test_player.move_left(valid_index_1);
+                test_player.update_walk();
             } else if (bn::keypad::right_held()) {
                 test_player.move_right(valid_index_1);
+                test_player.update_walk();
             }
             if (bn::keypad::up_held()) {
                 test_player.move_up(valid_index_1);
+                test_player.update_walk();
             } else if (bn::keypad::down_held()) {
                 test_player.move_down(valid_index_1);
+                test_player.update_walk();
             }
             // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
             info.update();

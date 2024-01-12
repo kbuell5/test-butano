@@ -7,6 +7,7 @@
 #include "bn_sprite_item.h"
 #include "bn_regular_bg_ptr.h"
 #include "bn_regular_bg_map_item.h"
+#include "bn_sprite_animate_actions.h"
 
 // my generated headers
 #include "bn_sprite_items_turnaround32.h"
@@ -17,11 +18,17 @@ namespace kt {
         Fish,
         Butterfly
     };
+    enum Direction {
+        Up,
+        Down,
+        Left,
+        Right
+    };
     class Player {
         public:
         // NOTE you need the initializer list or else you get a compile-time error like "no matching function to call"
-            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map) : player_spr_ptr(spr_ptr), player_spr_item(spr_item), map_item(map) {
-                bn::log(bn::string<10>("it worked"));
+            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) : player_spr_ptr(spr_ptr), player_spr_item(spr_item), map_item(map), walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)), player_tiles(player_tiles_item) {
+                bn::log(bn::string<20>("Player constructed"));
                 // here 16 is the cell we want to be in, * 8 is to convert to pixels (mb switch to just 128 later?)
                 int start_pt = 16 * 8;
                 player_pos = bn::point(start_pt, start_pt);
@@ -29,27 +36,29 @@ namespace kt {
                 hitbox_br = bn::point(start_pt + 5, start_pt + 15);
                 hitbox_tl = bn::point(start_pt - 5, start_pt + 1);
                 hitbox_tr = bn::point(start_pt + 5, start_pt + 1);
-                bn::log(bn::string<32>(bn::to_string<16>(player_pos.x()) + " " + bn::to_string<16>(player_pos.y())));
                 held_item = None;
+                dir = Down;
             };
 
             bool move_left(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() - 1);
-                player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(12));
+                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(12));
+                if (dir != Left) {
+                    dir = Left;
+                    walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 12, 13, 14, 15);
+                }
                 bn::point new_hitbox_tr = bn::point(hitbox_tr.x() - 1, hitbox_tr.y());
                 bn::point new_hitbox_br = bn::point(hitbox_br.x() - 1, hitbox_br.y());
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x() - 1, hitbox_tl.y());
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x() - 1, hitbox_bl.y());
                 if (!_hitbox_collided(new_hitbox_tl, new_hitbox_bl, valid_tile)) {
-                    bn::log(bn::string<15>("no hitbox left"));
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
                     hitbox_tl = new_hitbox_tl;
                     hitbox_bl = new_hitbox_bl;
                     player_spr_ptr.set_position(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
-                    bn::log(bn::string<64>("sprite ptr pos: " + bn::to_string<32>(player_pos.x()) + " " + bn::to_string<32>(player_pos.y())));
                     return true;
                 }
                 return false;
@@ -58,20 +67,22 @@ namespace kt {
             bool move_right(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() + 1);
-                player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(8));
+                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(8));
+                if (dir != Right) {
+                    dir = Right;
+                    walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 8, 9, 10, 11);
+                }
                 bn::point new_hitbox_tr = bn::point(hitbox_tr.x() + 1, hitbox_tr.y());
                 bn::point new_hitbox_br = bn::point(hitbox_br.x() + 1, hitbox_br.y());
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x() + 1, hitbox_tl.y());
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x() + 1, hitbox_bl.y());
                 if (!_hitbox_collided(new_hitbox_tr, new_hitbox_br, valid_tile)) {
-                    bn::log(bn::string<25>("moved right player class"));
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
                     hitbox_tl = new_hitbox_tl;
                     hitbox_bl = new_hitbox_bl;
                     player_spr_ptr.set_position(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
-                    bn::log(bn::string<64>("sprite ptr pos: " + bn::to_string<32>(player_pos.x()) + " " + bn::to_string<32>(player_pos.y())));
                     return true;
                 }
                 return false;
@@ -80,20 +91,22 @@ namespace kt {
             bool move_up(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() - 1);
-                player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(4));
+                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(4));
+                if (dir != Up) {
+                    dir = Up;
+                    walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 4, 5, 6, 7);
+                }
                 bn::point new_hitbox_tr = bn::point(hitbox_tr.x(), hitbox_tr.y() - 1);
                 bn::point new_hitbox_br = bn::point(hitbox_br.x(), hitbox_br.y() - 1);
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x(), hitbox_tl.y() - 1);
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x(), hitbox_bl.y() - 1);
                 if (!_hitbox_collided(new_hitbox_tr, new_hitbox_tl, valid_tile)) {
-                    bn::log(bn::string<15>("no hitbox up"));
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
                     hitbox_tl = new_hitbox_tl;
                     hitbox_bl = new_hitbox_bl;
                     player_spr_ptr.set_position(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
-                    bn::log(bn::string<64>("sprite ptr pos: " + bn::to_string<32>(player_pos.x()) + " " + bn::to_string<32>(player_pos.y())));
                     return true;
                 }
                 return false;
@@ -102,37 +115,41 @@ namespace kt {
             bool move_down(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() + 1);
-                player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(0));
+                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(0));
+                if (dir != Down) {
+                    dir = Down;
+                    walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 0, 1, 2, 3);
+                }
                 bn::point new_hitbox_tr = bn::point(hitbox_tr.x(), hitbox_tr.y() + 1);
                 bn::point new_hitbox_br = bn::point(hitbox_br.x(), hitbox_br.y() + 1);
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x(), hitbox_tl.y() + 1);
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x(), hitbox_bl.y() + 1);
                 if (!_hitbox_collided(new_hitbox_br, new_hitbox_bl, valid_tile)) {
-                    bn::log(bn::string<15>("no hitbox down"));
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
                     hitbox_tl = new_hitbox_tl;
                     hitbox_bl = new_hitbox_bl;
                     player_spr_ptr.set_position(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
-                    bn::log(bn::string<64>("sprite ptr pos: " + bn::to_string<32>(player_pos.x()) + " " + bn::to_string<32>(player_pos.y())));
                     return true;
                 }
                 return false;
             };
 
             void Pickup(int item) {
-                bn::log(bn::string<10>("picked up"));
+                bn::log(bn::string<27>("picked up ") = bn::to_string<16>(item));
             };
 
             void PutDown() {
 
             };
 
+            void update_walk() { 
+                walk_cycle.update();
+            };
+
         private:
             bool _hitbox_collided(bn::point p1, bn::point p2, int valid_index) {
-                bn::log(bn::to_string<16>(p1.x()) + " " + bn::to_string<16>(p1.y()));
-                bn::log(bn::to_string<16>(p2.x()) + " " + bn::to_string<16>(p2.y()));
                 bn::regular_bg_map_cell p1_map_cell = map_item.cell(bn::point(p1.x() / 8, p1.y() / 8));
                 bn::regular_bg_map_cell p2_map_cell = map_item.cell(bn::point(p2.x() / 8, p2.y() / 8));
                 int p1_index = bn::regular_bg_map_cell_info(p1_map_cell).tile_index();
@@ -143,9 +160,12 @@ namespace kt {
 
             bn::sprite_ptr player_spr_ptr;
             bn::sprite_item player_spr_item;
-            bn::point player_pos;
             bn::regular_bg_map_item map_item;
+            bn::sprite_animate_action<4> walk_cycle;
+            bn::sprite_tiles_item player_tiles;
+            bn::point player_pos;
             int held_item;
+            int dir;
             bn::point hitbox_tr;
             bn::point hitbox_br;
             bn::point hitbox_tl;
