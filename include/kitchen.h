@@ -19,15 +19,17 @@ namespace kt {
 
     class Interactable {
         public:
-            Interactable(int number_cells, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object) {
-                num_cells = number_cells;
+            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object) {
+                min_x = min_x_cell;
+                max_x = max_x_cell;
                 is_interactable = interact;
                 has_fish = has_a_fish;
                 type = type_of_cell;
                 fish = fish_object;
             }
 
-            int num_cells;
+            int min_x;
+            int max_x;
             bool is_interactable = false;
             bool has_fish = false;
             CellType type;
@@ -36,22 +38,24 @@ namespace kt {
 
     class Kitchen {
         public:
-            Kitchen(bn::regular_bg_item map) : map_item(map.map_item()), valid_cell(map_item.cell(0, 0)) {
+            Kitchen(bn::regular_bg_map_item map) : map_item(map), valid_cell(map_item.cell(0, 0)) {
                 // valid_cell = map_item.cell(0, 0);
                 valid_tile = bn::regular_bg_map_cell_info(valid_cell).tile_index();
                 // ---------- Define interactable tiles
+                // TODO change this to all use i at higher scope
+                // int i = 1;
                 for (int i = 1; i <= 8; i++) {
-                    Interactable fishtank_inter(8, true, true, FishTank, nullptr);
-                    interactables.push_back(bn::pair<bn::regular_bg_map_cell, Interactable>(map_item.cell(0, i), fishtank_inter));
+                    Interactable fishtank_inter(1, 8, true, true, FishTank, nullptr);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(0, i)).tile_index(), fishtank_inter));
                 }
                 for (int j = 9; j <= 12; j++) {
-                    Interactable butterfly_inter(4, true, false, Butterfly, nullptr);
-                    interactables.push_back(bn::pair<bn::regular_bg_map_cell, Interactable>(map_item.cell(0, j), butterfly_inter));
+                    Interactable butterfly_inter(9, 12, true, false, Butterfly, nullptr);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(0, j)).tile_index(), butterfly_inter));
 
                 }
                 for (int k = 13; k <= 16; k++) {
-                    Interactable timer_inter(4, true, false, Timer, nullptr);
-                    interactables.push_back(bn::pair<bn::regular_bg_map_cell, Interactable>(map_item.cell(0, k), timer_inter));
+                    Interactable timer_inter(13, 16, true, false, Timer, nullptr);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(0, k)).tile_index(), timer_inter));
                 }
             };
 
@@ -59,11 +63,78 @@ namespace kt {
                 return valid_tile;
             };
 
+            bool interact(int search_index, Fish *&held_item) {
+                for (int i = 0; i < interactables.size(); i++) {
+                    // If we've found the interactable we've collided with
+                    if (interactables[i].first == search_index) {
+                        // Is it interactable at the moment?
+                        if (interactables[i].second.is_interactable == false) return false;
+
+                        // Pick up, not holding a fish
+                        if (held_item == nullptr) {
+                            // If interactable does not have a fish to pick up
+                            if (interactables[i].second.has_fish == false) return false;
+                            // _pick_up(search_index, i, &held_item);
+                            held_item = interactables[i].second.fish;
+                            // Update flags of current cell
+                            interactables[i].second.has_fish = false;
+                            interactables[i].second.fish = nullptr;
+
+                            // Update flags of associated cells
+                            // NOTE this only works because i've hardcoded the vector values to be sorted based on x value
+                            for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
+                                interactables[j].second.has_fish = false;
+                                interactables[j].second.fish = nullptr;
+                            }
+                            for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
+                                interactables[k].second.has_fish = false;
+                                interactables[k].second.fish = nullptr;
+                            }
+                            bn::log(bn::string<32>("successful pick up"));
+                            return true;
+                        } else { // Put down, holding a fish
+                            // If interactable already has a fish on it
+                            // TODO special cases: 1. fishtank can have fish and also be given back a normal fish
+                                                // 2. fishtank can have a fish but not be given a modified fish
+                            if (interactables[i].second.has_fish) return false;
+                            // _put_down(search_index, i, &held_item);
+                            interactables[i].second.fish = held_item;
+                            interactables[i].second.has_fish = true;
+
+                            for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
+                                interactables[j].second.has_fish = true;
+                                interactables[i].second.fish = held_item;
+                            }
+                            for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
+                                interactables[k].second.has_fish = true;
+                                interactables[k].second.fish = held_item;
+                            }
+
+                            held_item = nullptr;
+                            bn::log(bn::string<32>("successful put down"));
+                            return true;
+                        }
+                    }
+                }
+                bn::log(bn::string<32>("interaction failed"));
+                return false;
+            };
 
         private:
+            bool _pick_up(int search_index, int i, Fish *&held_item) {
+                // TODO put in here
+                return false;
+            };
+
+            bool _put_down(int search_index, int i, Fish* held_item) {
+                // held_item = Fish(interactables[i)
+                // Update flags of current cell
+                return false;
+            };
+
             bn::regular_bg_map_item map_item;
             bn::regular_bg_map_cell valid_cell;
             int valid_tile;
-            bn::vector<bn::pair<bn::regular_bg_map_cell, Interactable>, 64> interactables;
+            bn::vector<bn::pair<int, Interactable>, 64> interactables;
     };
 }

@@ -61,6 +61,10 @@ namespace {
                 test_player.move_down(valid_index_1);
                 test_player.update_walk();
             }
+
+            if (bn::keypad::a_pressed()) {
+                test_player.interact();
+            }
             // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
             info.update();
             bn::core::update();

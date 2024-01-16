@@ -12,12 +12,10 @@
 // my generated headers
 #include "bn_sprite_items_turnaround32.h"
 
+// my written headers
+#include "kitchen.h"
+
 namespace kt {
-    enum HeldItem {
-        None,
-        Fish,
-        Butterfly
-    };
     enum Direction {
         Up,
         Down,
@@ -27,7 +25,7 @@ namespace kt {
     class Player {
         public:
         // NOTE you need the initializer list or else you get a compile-time error like "no matching function to call"
-            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) : player_spr_ptr(spr_ptr), player_spr_item(spr_item), map_item(map), walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)), player_tiles(player_tiles_item) {
+            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) : player_spr_ptr(spr_ptr), player_spr_item(spr_item), map_item(map), walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)), player_tiles(player_tiles_item), kitchen(map) {
                 bn::log(bn::string<20>("Player constructed"));
                 // here 16 is the cell we want to be in, * 8 is to convert to pixels (mb switch to just 128 later?)
                 int start_pt = 16 * 8;
@@ -36,8 +34,10 @@ namespace kt {
                 hitbox_br = bn::point(start_pt + 5, start_pt + 15);
                 hitbox_tl = bn::point(start_pt - 5, start_pt + 1);
                 hitbox_tr = bn::point(start_pt + 5, start_pt + 1);
-                held_item = None;
+                held_fish = nullptr;
                 dir = Down;
+
+                kitchen = Kitchen(map);
             };
 
             bool move_left(int valid_tile) {
@@ -136,12 +136,34 @@ namespace kt {
                 return false;
             };
 
-            void Pickup(int item) {
-                bn::log(bn::string<27>("picked up ") = bn::to_string<16>(item));
+            bool interact() {
+                // Calculate interaction collision point
+                bn::point interact_point;
+                if (dir == Up) {
+                    interact_point = player_pos;
+                } else if (dir == Down) {
+                    interact_point = bn::point(player_pos.x(), player_pos.y() + 16);
+                } else if (dir == Left) {
+                    interact_point = bn::point(player_pos.x() - 8, player_pos.y());
+                } else if (dir == Right) {
+                    interact_point = bn::point(player_pos.x() + 8, player_pos.y());
+                }
+
+                // Determine if this is a collision or not
+                bn::regular_bg_map_cell interact_cell = map_item.cell(interact_point);
+                int interact_index = bn::regular_bg_map_cell_info(interact_cell).tile_index();
+                if (interact_index == kitchen.valid_tile_index()) return false;
+
+                bool interact_bool = kitchen.interact(interact_index, held_fish);
+                bn::log(bn::string<32>("post kitchen.interact()"));
+                return interact_bool;
             };
 
-            void PutDown() {
-
+            bool try_pickup(int item, int valid_index) {
+                // if () {
+                    
+                // }
+                return false;
             };
 
             void update_walk() { 
@@ -149,6 +171,14 @@ namespace kt {
             };
 
         private:
+            void _pickup(int item) {
+                bn::log(bn::string<27>("picked up ") = bn::to_string<16>(item));
+            };
+
+            void _put_down() {
+
+            };
+
             bool _hitbox_collided(bn::point p1, bn::point p2, int valid_index) {
                 bn::regular_bg_map_cell p1_map_cell = map_item.cell(bn::point(p1.x() / 8, p1.y() / 8));
                 bn::regular_bg_map_cell p2_map_cell = map_item.cell(bn::point(p2.x() / 8, p2.y() / 8));
@@ -164,12 +194,14 @@ namespace kt {
             bn::sprite_animate_action<4> walk_cycle;
             bn::sprite_tiles_item player_tiles;
             bn::point player_pos;
-            int held_item;
+            Fish* held_fish;
             int dir;
             bn::point hitbox_tr;
             bn::point hitbox_br;
             bn::point hitbox_tl;
             bn::point hitbox_bl;
+
+            Kitchen kitchen;
             
     };
 }
