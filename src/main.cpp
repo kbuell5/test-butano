@@ -25,6 +25,7 @@
 // #include "bn_regular_bg_items_testmap.h"
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_turnaround32.h"
+#include "bn_sprite_items_fish_item.h"
 
 namespace {
     void test_startup_scene(bn::sprite_text_generator& text_generator) {
@@ -46,15 +47,12 @@ namespace {
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
             if (bn::keypad::left_held()) {
-                // NOTE these are now 2, not one (since my tiles are 16x16 and not 8x8)
-                // this will change when I implement smooth movement
                 test_player.move_left(valid_index_1);
                 test_player.update_walk();
             } else if (bn::keypad::right_held()) {
                 test_player.move_right(valid_index_1);
                 test_player.update_walk();
-            }
-            if (bn::keypad::up_held()) {
+            } else if (bn::keypad::up_held()) {
                 test_player.move_up(valid_index_1);
                 test_player.update_walk();
             } else if (bn::keypad::down_held()) {
@@ -69,7 +67,6 @@ namespace {
             if (bn::keypad::b_pressed()) {
                 test_player.debug_fish_address();
             }
-            // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
             info.update();
             bn::core::update();
         }

@@ -20,13 +20,14 @@ namespace kt {
 
     class Interactable {
         public:
-            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object) {
+            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object, int center_x, int center_y) {
                 min_x = min_x_cell;
                 max_x = max_x_cell;
                 is_interactable = interact;
                 has_fish = has_a_fish;
                 type = type_of_cell;
                 fish = fish_object;
+                center = bn::point(center_x, center_y);
             }
 
             int min_x;
@@ -35,6 +36,7 @@ namespace kt {
             bool has_fish = false;
             CellType type;
             Fish* fish = nullptr;
+            bn::point center;
     };
 
     class Kitchen {
@@ -44,20 +46,22 @@ namespace kt {
                 valid_tile = bn::regular_bg_map_cell_info(valid_cell).tile_index();
                 // ---------- Define interactable tiles
                 int i = 1;
-                Fish * tank_fish = fish_container.add_fish();
+                // Fish * tank_fish = fish_container.add_fish();
+                // tank_fish->get_fish_spr_ptr().set_position(0, 16);
                 for (i = 1; i <= 8; i++) {
-                    Interactable fishtank_inter(1, 8, true, true, FishTank, tank_fish);
+                    Interactable fishtank_inter(1, 8, true, true, FishTank, nullptr, -32, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), fishtank_inter));
                 }
                 for (i = 9; i <= 12; i++) {
-                    Interactable butterfly_inter(9, 12, true, false, Butterfly, nullptr);
+                    Interactable butterfly_inter(9, 12, true, false, Butterfly, nullptr, -8, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), butterfly_inter));
 
                 }
                 for (i = 13; i <= 16; i++) {
-                    Interactable timer_inter(13, 16, true, false, Timer, nullptr);
+                    Interactable timer_inter(13, 16, true, false, Timer, nullptr, 24, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), timer_inter));
                 }
+                // delete tank_fish;
             };
 
             int valid_tile_index() {
@@ -74,6 +78,11 @@ namespace kt {
 
                         // Pick up, not holding a fish
                         if (held_item == nullptr) {
+                            if (interactables[i].second.type == FishTank) {
+                                held_item = fish_container.add_fish();
+                                return true;
+                            }
+
                             // If interactable does not have a fish to pick up
                             if (interactables[i].second.has_fish == false) return false;
                             // _pick_up(search_index, i, &held_item);
@@ -103,15 +112,16 @@ namespace kt {
                             // If interactable already has a fish on it
                             // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
                                                 // [ ] fishtank can have a fish but not be given a modified fish
-                                                // [ ] trash can deletes fish, never "has" a fish
+                                                // [x] trash can deletes fish, never "has" a fish
                             if (interactables[i].second.has_fish) return false;
                             // _put_down(search_index, i, &held_item);
                             // If looking at the timer (trash can)
                             if (interactables[i].second.type == Timer) {
-                                // bn::log(bn::string<16>("fish id? "));
                                 fish_container.delete_fish(held_item->get_fish_id());
                                 held_item = nullptr;
                                 bn::log(bn::string<32>("frish garbaggio'd"));
+                                bn::log(bn::string<32>("fish id"));
+                                bn::log(bn::to_string<16>(held_item->get_fish_id()));
                                 return true;
                             }
 
@@ -126,7 +136,8 @@ namespace kt {
                                 interactables[k].second.has_fish = true;
                                 interactables[k].second.fish = held_item;
                             }
-
+                            interactables[i].second.fish->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
+                            interactables[i].second.fish->get_fish_spr_ptr().put_below();
                             held_item = nullptr;
                             bn::log(bn::string<32>("successful put down"));
                             return true;

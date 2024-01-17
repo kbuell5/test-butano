@@ -11,6 +11,7 @@
 
 // my generated headers
 #include "bn_sprite_items_turnaround32.h"
+#include "bn_sprite_items_fish_item.h"
 
 // my written headers
 #include "kitchen.h"
@@ -25,7 +26,13 @@ namespace kt {
     class Player {
         public:
         // NOTE you need the initializer list or else you get a compile-time error like "no matching function to call"
-            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) : player_spr_ptr(spr_ptr), player_spr_item(spr_item), map_item(map), walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)), player_tiles(player_tiles_item), kitchen(map) {
+            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) :
+                        player_spr_ptr(spr_ptr), 
+                        player_spr_item(spr_item),
+                        map_item(map), 
+                        walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)),
+                        player_tiles(player_tiles_item),
+                        kitchen(map) {
                 bn::log(bn::string<20>("Player constructed"));
                 // here 16 is the cell we want to be in, * 8 is to convert to pixels (mb switch to just 128 later?)
                 int start_pt = 16 * 8;
@@ -144,9 +151,9 @@ namespace kt {
                 } else if (dir == Down) {
                     interact_point = bn::point(player_pos.x(), player_pos.y() + 16);
                 } else if (dir == Left) {
-                    interact_point = bn::point(player_pos.x() - 8, player_pos.y());
+                    interact_point = bn::point(player_pos.x() - 8, player_pos.y() + 1);
                 } else if (dir == Right) {
-                    interact_point = bn::point(player_pos.x() + 8, player_pos.y());
+                    interact_point = bn::point(player_pos.x() + 8, player_pos.y() + 1);
                 }
 
                 // Determine if this is a collision or not
@@ -155,11 +162,26 @@ namespace kt {
                 if (interact_index == kitchen.valid_tile_index()) return false;
 
                 bool interact_bool = kitchen.interact(interact_index, held_fish);
+
+                if (interact_bool) update_item_sprite();
+
                 return interact_bool;
             };
 
             void update_walk() { 
                 walk_cycle.update();
+                if (held_fish != nullptr) held_fish->update_fish_location(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
+            };
+
+            void update_item_sprite() {
+                if (held_fish == nullptr) {
+                    // fish_spr_ptr = nullptr;
+                    
+                } else {
+                    // fish_spr_ptr = held_fish->get_fish_spr_ptr();
+                    held_fish->update_fish_location(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
+                    bn::log(bn::string<32>("updated fish sprite"));
+                }
             };
 
             void debug_fish_address() {
