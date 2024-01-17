@@ -150,35 +150,24 @@ namespace kt {
                 }
 
                 // Determine if this is a collision or not
-                bn::regular_bg_map_cell interact_cell = map_item.cell(interact_point);
+                bn::regular_bg_map_cell interact_cell = map_item.cell(bn::point(interact_point.x() / 8, interact_point.y() / 8));
                 int interact_index = bn::regular_bg_map_cell_info(interact_cell).tile_index();
                 if (interact_index == kitchen.valid_tile_index()) return false;
 
                 bool interact_bool = kitchen.interact(interact_index, held_fish);
-                bn::log(bn::string<32>("post kitchen.interact()"));
                 return interact_bool;
-            };
-
-            bool try_pickup(int item, int valid_index) {
-                // if () {
-                    
-                // }
-                return false;
             };
 
             void update_walk() { 
                 walk_cycle.update();
             };
 
+            void debug_fish_address() {
+                bn::log(bn::string<32>("current fish memory address: "));
+                bn::log(bn::to_string<64>(held_fish));
+            };
+
         private:
-            void _pickup(int item) {
-                bn::log(bn::string<27>("picked up ") = bn::to_string<16>(item));
-            };
-
-            void _put_down() {
-
-            };
-
             bool _hitbox_collided(bn::point p1, bn::point p2, int valid_index) {
                 bn::regular_bg_map_cell p1_map_cell = map_item.cell(bn::point(p1.x() / 8, p1.y() / 8));
                 bn::regular_bg_map_cell p2_map_cell = map_item.cell(bn::point(p2.x() / 8, p2.y() / 8));

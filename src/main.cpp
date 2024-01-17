@@ -65,6 +65,10 @@ namespace {
             if (bn::keypad::a_pressed()) {
                 test_player.interact();
             }
+
+            if (bn::keypad::b_pressed()) {
+                test_player.debug_fish_address();
+            }
             // this only works w/ the * 8 b/c I set the set_x and set_y modifiers to 2 (see note above)
             info.update();
             bn::core::update();
