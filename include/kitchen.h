@@ -106,6 +106,7 @@ namespace kt {
                                 interactables[k].second.has_fish = false;
                                 interactables[k].second.fish = nullptr;
                             }
+                            held_item->get_fish_spr_ptr().put_above();
                             bn::log(bn::string<32>("successful pick up"));
                             return true;
                         } else { // Put down, holding a fish
@@ -113,7 +114,21 @@ namespace kt {
                             // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
                                                 // [ ] fishtank can have a fish but not be given a modified fish
                                                 // [x] trash can deletes fish, never "has" a fish
-                            if (interactables[i].second.has_fish) return false;
+                            if (interactables[i].second.type == FishTank) {
+                                if (held_item->is_basic()) {
+                                    fish_container.delete_fish(held_item->get_fish_id());
+                                    held_item = nullptr;
+                                    bn::log(bn::string<32>("fish put back :3"));
+                                    return true;
+                                } else {
+                                    bn::log(bn::string<48>("tried to put modified fish in tank >:3"));
+                                    return false;
+                                }
+                            }
+
+                            if (interactables[i].second.has_fish) {
+                                return false;
+                            }
                             // _put_down(search_index, i, &held_item);
                             // If looking at the timer (trash can)
                             if (interactables[i].second.type == Timer) {

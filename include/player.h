@@ -187,6 +187,8 @@ namespace kt {
             void debug_fish_address() {
                 bn::log(bn::string<32>("current fish memory address: "));
                 bn::log(bn::to_string<64>(held_fish));
+                bn::log(bn::string<16>("fish basic?"));
+                bn::log(bn::to_string<16>(held_fish->is_basic()));
             };
 
         private:

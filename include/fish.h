@@ -63,6 +63,10 @@ namespace kt {
                 fish_config |= 0b00010000;
             };
 
+            bool is_basic() {
+                return (fish_config == 0);
+            };
+
             // Sprite functions
             void show_fish() {
                 fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(1));
