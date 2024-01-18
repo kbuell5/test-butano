@@ -106,7 +106,7 @@ namespace kt {
                                 interactables[k].second.has_fish = false;
                                 interactables[k].second.fish = nullptr;
                             }
-                            held_item->get_fish_spr_ptr().put_above();
+                            held_item->put_fish_above();
                             bn::log(bn::string<32>("successful pick up"));
                             return true;
                         } else { // Put down, holding a fish
@@ -135,8 +135,8 @@ namespace kt {
                                 fish_container.delete_fish(held_item->get_fish_id());
                                 held_item = nullptr;
                                 bn::log(bn::string<32>("frish garbaggio'd"));
-                                bn::log(bn::string<32>("fish id"));
-                                bn::log(bn::to_string<16>(held_item->get_fish_id()));
+                                // bn::log(bn::string<32>("fish id"));
+                                // bn::log(bn::to_string<16>(held_item->get_fish_id()));
                                 return true;
                             }
 
@@ -152,7 +152,15 @@ namespace kt {
                                 interactables[k].second.fish = held_item;
                             }
                             interactables[i].second.fish->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
-                            interactables[i].second.fish->get_fish_spr_ptr().put_below();
+
+                            // If looking at butterfly (legs upgrade)
+                            if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
+                                interactables[i].second.fish->give_legs();
+                                bn::log(bn::string<16>("gave fish legs"));
+                            }
+
+                            interactables[i].second.fish->put_fish_below();
+
                             held_item = nullptr;
                             bn::log(bn::string<32>("successful put down"));
                             return true;

@@ -7,8 +7,10 @@
 #include "bn_sprite_item.h"
 #include "bn_regular_bg_map_item.h"
 #include "bn_sprite_animate_actions.h"
+#include "bn_vector.h"
 
 #include "bn_sprite_items_fish_item.h"
+#include "bn_sprite_items_legs.h"
 
 namespace kt {
     class Fish {
@@ -47,8 +49,25 @@ namespace kt {
                 return fish_spr_ptr;
             };
 
+            bool legs() {
+                return (fish_config & (1 << 7));
+            };
+
+            bool kiss() {
+                return (fish_config & (1 << 6));
+            };
+
+            bool makeup() {
+                return (fish_config & (1 << 5));
+            };
+
+            bool sparkles() {
+                return (fish_config & (1 << 4));
+            };
+
             void give_legs() {
                 fish_config |= 0b10000000;
+                upgrade_sprites.push_back(bn::sprite_items::legs.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
             };
 
             void give_kiss() {
@@ -67,7 +86,21 @@ namespace kt {
                 return (fish_config == 0);
             };
 
-            // Sprite functions
+            void put_fish_below() {
+                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
+                    it->put_below();
+                }
+                fish_spr_ptr.put_below();
+            };
+
+            void put_fish_above() {
+                fish_spr_ptr.put_above();
+                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
+                    it->put_above();
+                }  
+            };
+
+            // these may be obsolete
             void show_fish() {
                 fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(1));
                 // TODO show customized stuff
@@ -79,11 +112,16 @@ namespace kt {
 
             void update_fish_location(int x, int y) {
                 fish_spr_ptr.set_position(x, y);
+                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
+                    it->set_position(x, y);
+                }
             };
 
         private:
             static uint32_t fish_id_counter;
             uint32_t fish_id;
+
+            bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
 
 //          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
 //          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |

@@ -175,10 +175,8 @@ namespace kt {
 
             void update_item_sprite() {
                 if (held_fish == nullptr) {
-                    // fish_spr_ptr = nullptr;
                     
                 } else {
-                    // fish_spr_ptr = held_fish->get_fish_spr_ptr();
                     held_fish->update_fish_location(player_pos.x() - (map_item.dimensions().width() * 4), player_pos.y() - (map_item.dimensions().height() * 4));
                     bn::log(bn::string<32>("updated fish sprite"));
                 }
