@@ -5,6 +5,7 @@
 #include "bn_regular_bg_map_item.h"
 #include "bn_vector.h"
 #include "bn_utility.h"
+#include "bn_sprite_animate_actions.h"
 
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_piechart.h"
@@ -22,7 +23,8 @@ namespace kt {
     class Interactable {
         public:
             Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object, int center_x, int center_y) :
-                        pie_chart_ptr(bn::sprite_items::piechart.create_sprite(center_x, center_y)) {
+                        pie_chart_ptr(bn::sprite_items::piechart.create_sprite(center_x, center_y)),
+                        pie_anim(bn::create_sprite_animate_action_once(pie_chart_ptr, 20, bn::sprite_items::piechart.tiles_item(), 1, 2, 3, 4, 5, 6, 7, 8, 9)) {
                 min_x = min_x_cell;
                 max_x = max_x_cell;
                 is_interactable = interact;
@@ -30,16 +32,25 @@ namespace kt {
                 type = type_of_cell;
                 fish = fish_object;
                 center = bn::point(center_x, center_y);
-            }
+            };
+
+            void do_action() {
+                if (type == Butterfly) {
+                    fish->give_legs();
+                    bn::log(bn::string<32>("gave fish legs (in interactable)"));
+                }
+            };
 
             int min_x;
             int max_x;
             bool is_interactable = false;
+            bool is_upgrading = false;
             bool has_fish = false;
             CellType type;
             Fish* fish = nullptr;
             bn::point center;
             bn::sprite_ptr pie_chart_ptr;
+            bn::sprite_animate_action<9> pie_anim;
     };
 
     class Kitchen {
@@ -49,8 +60,6 @@ namespace kt {
                 valid_tile = bn::regular_bg_map_cell_info(valid_cell).tile_index();
                 // ---------- Define interactable tiles
                 int i = 1;
-                // Fish * tank_fish = fish_container.add_fish();
-                // tank_fish->get_fish_spr_ptr().set_position(0, 16);
                 for (i = 1; i <= 8; i++) {
                     Interactable fishtank_inter(1, 8, true, true, FishTank, nullptr, -32, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), fishtank_inter));
@@ -64,7 +73,6 @@ namespace kt {
                     Interactable timer_inter(13, 16, true, false, Timer, nullptr, 24, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), timer_inter));
                 }
-                // delete tank_fish;
             };
 
             int valid_tile_index() {
@@ -89,6 +97,22 @@ namespace kt {
                 }
                 bn::log(bn::string<32>("interaction failed"));
                 return false;
+            };
+
+            void update() {
+                for (bn::vector<bn::pair<int, Interactable>, 64>::iterator it = interactables.begin(); it != interactables.end(); it++) {
+                    if (it->second.is_upgrading && !it->second.pie_anim.done()) {
+                        it->second.pie_anim.update();
+                        if (it->second.pie_anim.done()) {
+                            it->second.is_upgrading = false;
+                            it->second.pie_anim.reset();
+                            it->second.pie_anim.update();
+                            it->second.pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
+
+                            it->second.do_action();
+                        }
+                    }
+                }
             };
 
         private:
@@ -171,8 +195,7 @@ namespace kt {
 
                 // If looking at butterfly (legs upgrade)
                 if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
-                    interactables[i].second.fish->give_legs();
-                    bn::log(bn::string<16>("gave fish legs"));
+                    interactables[i].second.is_upgrading = true;
                 }
 
                 interactables[i].second.fish->put_fish_below();

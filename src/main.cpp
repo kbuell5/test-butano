@@ -67,6 +67,8 @@ namespace {
             if (bn::keypad::b_pressed()) {
                 test_player.debug_fish_address();
             }
+
+            test_player.kitchen_update();
             info.update();
             bn::core::update();
         }
