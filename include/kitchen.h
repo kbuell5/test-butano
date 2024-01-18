@@ -7,6 +7,7 @@
 #include "bn_utility.h"
 
 #include "bn_regular_bg_items_map_interactive.h"
+#include "bn_sprite_items_piechart.h"
 
 // #include "fish.h"
 #include "fish_container.h"
@@ -20,7 +21,8 @@ namespace kt {
 
     class Interactable {
         public:
-            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object, int center_x, int center_y) {
+            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object, int center_x, int center_y) :
+                        pie_chart_ptr(bn::sprite_items::piechart.create_sprite(center_x, center_y)) {
                 min_x = min_x_cell;
                 max_x = max_x_cell;
                 is_interactable = interact;
@@ -37,6 +39,7 @@ namespace kt {
             CellType type;
             Fish* fish = nullptr;
             bn::point center;
+            bn::sprite_ptr pie_chart_ptr;
     };
 
     class Kitchen {
@@ -78,92 +81,9 @@ namespace kt {
 
                         // Pick up, not holding a fish
                         if (held_item == nullptr) {
-                            if (interactables[i].second.type == FishTank) {
-                                held_item = fish_container.add_fish();
-                                return true;
-                            }
-
-                            // If interactable does not have a fish to pick up
-                            if (interactables[i].second.has_fish == false) return false;
-                            // _pick_up(search_index, i, &held_item);
-                            held_item = interactables[i].second.fish;
-                            bn::log(bn::string<64>("new address for held_item: "));
-                            bn::log(bn::to_string<32>(held_item));
-                            // Update flags of current cell
-                            interactables[i].second.has_fish = false;
-                            interactables[i].second.fish = nullptr;
-                            bn::log(bn::string<64>("maybe we fucked up: "));
-                            bn::log(bn::to_string<32>(held_item));
-
-
-                            // Update flags of associated cells
-                            // NOTE this only works because i've hardcoded the vector values to be sorted based on x value
-                            for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
-                                interactables[j].second.has_fish = false;
-                                interactables[j].second.fish = nullptr;
-                            }
-                            for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
-                                interactables[k].second.has_fish = false;
-                                interactables[k].second.fish = nullptr;
-                            }
-                            held_item->put_fish_above();
-                            bn::log(bn::string<32>("successful pick up"));
-                            return true;
+                            return _pick_up(i, held_item);
                         } else { // Put down, holding a fish
-                            // If interactable already has a fish on it
-                            // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
-                                                // [ ] fishtank can have a fish but not be given a modified fish
-                                                // [x] trash can deletes fish, never "has" a fish
-                            if (interactables[i].second.type == FishTank) {
-                                if (held_item->is_basic()) {
-                                    fish_container.delete_fish(held_item->get_fish_id());
-                                    held_item = nullptr;
-                                    bn::log(bn::string<32>("fish put back :3"));
-                                    return true;
-                                } else {
-                                    bn::log(bn::string<48>("tried to put modified fish in tank >:3"));
-                                    return false;
-                                }
-                            }
-
-                            if (interactables[i].second.has_fish) {
-                                return false;
-                            }
-                            // _put_down(search_index, i, &held_item);
-                            // If looking at the timer (trash can)
-                            if (interactables[i].second.type == Timer) {
-                                fish_container.delete_fish(held_item->get_fish_id());
-                                held_item = nullptr;
-                                bn::log(bn::string<32>("frish garbaggio'd"));
-                                // bn::log(bn::string<32>("fish id"));
-                                // bn::log(bn::to_string<16>(held_item->get_fish_id()));
-                                return true;
-                            }
-
-                            interactables[i].second.fish = held_item;
-                            interactables[i].second.has_fish = true;
-
-                            for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
-                                interactables[j].second.has_fish = true;
-                                interactables[i].second.fish = held_item;
-                            }
-                            for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
-                                interactables[k].second.has_fish = true;
-                                interactables[k].second.fish = held_item;
-                            }
-                            interactables[i].second.fish->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
-
-                            // If looking at butterfly (legs upgrade)
-                            if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
-                                interactables[i].second.fish->give_legs();
-                                bn::log(bn::string<16>("gave fish legs"));
-                            }
-
-                            interactables[i].second.fish->put_fish_below();
-
-                            held_item = nullptr;
-                            bn::log(bn::string<32>("successful put down"));
-                            return true;
+                            return _put_down(i, held_item);
                         }
                     }
                 }
@@ -172,15 +92,94 @@ namespace kt {
             };
 
         private:
-            bool _pick_up(int search_index, int i, Fish *&held_item) {
-                // TODO put in here
-                return false;
+            bool _pick_up(int i, Fish *&held_item) {
+                if (interactables[i].second.type == FishTank) {
+                    held_item = fish_container.add_fish();
+                    return true;
+                }
+
+                // If interactable does not have a fish to pick up
+                if (interactables[i].second.has_fish == false) return false;
+                held_item = interactables[i].second.fish;
+                bn::log(bn::string<64>("new address for held_item: "));
+                bn::log(bn::to_string<32>(held_item));
+                // Update flags of current cell
+                interactables[i].second.has_fish = false;
+                interactables[i].second.fish = nullptr;
+                bn::log(bn::string<64>("maybe we fucked up: "));
+                bn::log(bn::to_string<32>(held_item));
+
+
+                // Update flags of associated cells
+                // NOTE this only works because i've hardcoded the vector values to be sorted based on x value
+                for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
+                    interactables[j].second.has_fish = false;
+                    interactables[j].second.fish = nullptr;
+                }
+                for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
+                    interactables[k].second.has_fish = false;
+                    interactables[k].second.fish = nullptr;
+                }
+                held_item->put_fish_above();
+                bn::log(bn::string<32>("successful pick up"));
+                return true;
             };
 
-            bool _put_down(int search_index, int i, Fish* held_item) {
-                // held_item = Fish(interactables[i)
-                // Update flags of current cell
-                return false;
+            bool _put_down(int i, Fish *&held_item) {
+                // If interactable already has a fish on it
+                // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
+                                    // [ ] fishtank can have a fish but not be given a modified fish
+                                    // [x] trash can deletes fish, never "has" a fish
+                if (interactables[i].second.type == FishTank) {
+                    if (held_item->is_basic()) {
+                        fish_container.delete_fish(held_item->get_fish_id());
+                        held_item = nullptr;
+                        bn::log(bn::string<32>("fish put back :3"));
+                        return true;
+                    } else {
+                        bn::log(bn::string<48>("tried to put modified fish in tank >:3"));
+                        return false;
+                    }
+                }
+
+                if (interactables[i].second.has_fish) {
+                    return false;
+                }
+                
+                // If looking at the timer (trash can)
+                if (interactables[i].second.type == Timer) {
+                    fish_container.delete_fish(held_item->get_fish_id());
+                    held_item = nullptr;
+                    bn::log(bn::string<32>("frish garbaggio'd"));
+                    // bn::log(bn::string<32>("fish id"));
+                    // bn::log(bn::to_string<16>(held_item->get_fish_id()));
+                    return true;
+                }
+
+                interactables[i].second.fish = held_item;
+                interactables[i].second.has_fish = true;
+
+                for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
+                    interactables[j].second.has_fish = true;
+                    interactables[i].second.fish = held_item;
+                }
+                for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
+                    interactables[k].second.has_fish = true;
+                    interactables[k].second.fish = held_item;
+                }
+                interactables[i].second.fish->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
+
+                // If looking at butterfly (legs upgrade)
+                if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
+                    interactables[i].second.fish->give_legs();
+                    bn::log(bn::string<16>("gave fish legs"));
+                }
+
+                interactables[i].second.fish->put_fish_below();
+
+                held_item = nullptr;
+                bn::log(bn::string<32>("successful put down"));
+                return true;
             };
 
             bn::regular_bg_map_item map_item;
