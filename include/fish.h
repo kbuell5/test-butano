@@ -11,6 +11,7 @@
 
 #include "bn_sprite_items_fish_item.h"
 #include "bn_sprite_items_legs.h"
+#include "bn_sprite_items_fish_makeup.h"
 
 namespace kt {
     class Fish {
@@ -76,6 +77,8 @@ namespace kt {
 
             void give_makeup() {
                 fish_config |= 0b00100000;
+                upgrade_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
+                bn::log(bn::string<16>("woooo"));
             };
 
             void give_sparkles() {

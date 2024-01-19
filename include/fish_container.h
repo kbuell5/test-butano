@@ -22,16 +22,8 @@ namespace kt {
             bool delete_fish(int del_id) {
                 for (bn::vector<kt::Fish, 32>::iterator it = fishies.begin(); it != fishies.end(); it++) {
                     if (it->get_fish_id() == del_id) {
-                        bn::log(bn::string<32>("current fishies count: "));
-                        bn::log(bn::to_string<16>(fishies.size()));
-                        bn::log(bn::string<16>("fish id: "));
-                        bn::log(bn::to_string<16>(it->get_fish_id()));
                         fishies.erase(it);
                         bn::log(bn::string<16>("fish GONE"));
-                        bn::log(bn::string<16>("fish id: "));
-                        bn::log(bn::to_string<16>(it->get_fish_id()));
-                        bn::log(bn::string<32>("after fishies count: "));
-                        bn::log(bn::to_string<16>(fishies.size()));
                         return true;
                     }
                 }

@@ -41,6 +41,9 @@ namespace kt {
                 if (type == Butterfly) {
                     fish->give_legs();
                     bn::log(bn::string<32>("gave fish legs (in interactable)"));
+                } else if (type == Makeup) {
+                    fish->give_makeup();
+                    bn::log(bn::string<32>("gave fish makeup"));
                 }
             };
 
@@ -218,6 +221,11 @@ namespace kt {
 
                 // If looking at butterfly (legs upgrade)
                 if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
+                    interactables[i].second.is_upgrading = true;
+                }
+
+                // If looking at makeup upgrade
+                if (interactables[i].second.type == Makeup && !interactables[i].second.fish->makeup()) {
                     interactables[i].second.is_upgrading = true;
                 }
 
