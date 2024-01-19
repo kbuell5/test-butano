@@ -10,16 +10,31 @@
 #include "bn_vector.h"
 
 #include "bn_sprite_items_fish_item.h"
+#include "bn_sprite_items_green_fish_item.h"
 #include "bn_sprite_items_legs.h"
 #include "bn_sprite_items_fish_makeup.h"
 
 namespace kt {
+    enum FishType {
+        Purple,
+        Green
+    };
+
+    bn::sprite_item enum_to_sprite_item(FishType type) {
+        if (type == Purple) {
+            return bn::sprite_items::fish_item;
+        } else {
+            return bn::sprite_items::green_fish_item;
+        }
+    };
+
     class Fish {
         public:
-            Fish() :
-                    fish_spr_item(bn::sprite_items::fish_item),
+            Fish(FishType fish_type) :
+                    fish_spr_item(enum_to_sprite_item(fish_type)),
                     fish_spr_ptr(fish_spr_item.create_sprite(0, 0)) {
                 fish_id = fish_id_counter++;
+                type = fish_type;
                 show_fish();
             };
 
@@ -48,6 +63,10 @@ namespace kt {
 
             bn::sprite_ptr get_fish_spr_ptr() {
                 return fish_spr_ptr;
+            };
+
+            FishType get_fish_type() {
+                return type;
             };
 
             bool legs() {
@@ -123,6 +142,7 @@ namespace kt {
         private:
             static uint32_t fish_id_counter;
             uint32_t fish_id;
+            FishType type;
 
             bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
 

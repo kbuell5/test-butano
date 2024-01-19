@@ -50,7 +50,6 @@ namespace kt {
             bool move_left(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() - 1);
-                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(12));
                 if (dir != Left) {
                     dir = Left;
                     walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 12, 13, 14, 15);
@@ -74,7 +73,6 @@ namespace kt {
             bool move_right(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() + 1);
-                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(8));
                 if (dir != Right) {
                     dir = Right;
                     walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 8, 9, 10, 11);
@@ -98,7 +96,6 @@ namespace kt {
             bool move_up(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() - 1);
-                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(4));
                 if (dir != Up) {
                     dir = Up;
                     walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 4, 5, 6, 7);
@@ -122,7 +119,6 @@ namespace kt {
             bool move_down(int valid_tile) {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() + 1);
-                // player_spr_ptr.set_tiles(player_spr_item.tiles_item().create_tiles(0));
                 if (dir != Down) {
                     dir = Down;
                     walk_cycle = bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 0, 1, 2, 3);

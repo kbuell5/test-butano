@@ -13,8 +13,8 @@ namespace kt {
                 balls = 0;
             };
 
-            Fish* add_fish() {
-                Fish * new_fish = new Fish();
+            Fish* add_fish(FishType fish_type) {
+                Fish * new_fish = new Fish(fish_type);
                 fishies.push_back(*new_fish);
                 return new_fish;
             };

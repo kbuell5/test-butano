@@ -135,7 +135,12 @@ namespace kt {
         private:
             bool _pick_up(int i, Fish *&held_item) {
                 if (interactables[i].second.type == FishTank) {
-                    held_item = fish_container.add_fish();
+                    held_item = fish_container.add_fish(Purple);
+                    return true;
+                }
+
+                if (interactables[i].second.type == GreenFishTank) {
+                    held_item = fish_container.add_fish(Green);
                     return true;
                 }
 
@@ -180,7 +185,8 @@ namespace kt {
                 // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
                                     // [ ] fishtank can have a fish but not be given a modified fish
                                     // [x] trash can deletes fish, never "has" a fish
-                if (interactables[i].second.type == FishTank) {
+                if ((interactables[i].second.type == FishTank && held_item->get_fish_type() == Purple) || 
+                    (interactables[i].second.type == GreenFishTank && held_item->get_fish_type() == Green)) {
                     if (held_item->is_basic()) {
                         fish_container.delete_fish(held_item->get_fish_id());
                         held_item = nullptr;
