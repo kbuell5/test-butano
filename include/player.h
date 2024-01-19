@@ -26,12 +26,11 @@ namespace kt {
     class Player {
         public:
         // NOTE you need the initializer list or else you get a compile-time error like "no matching function to call"
-            Player(bn::sprite_ptr spr_ptr, bn::sprite_item spr_item, bn::regular_bg_map_item map, bn::sprite_tiles_item player_tiles_item) :
-                        player_spr_ptr(spr_ptr), 
-                        player_spr_item(spr_item),
+            Player(bn::regular_bg_map_item map) :
+                        player_spr_ptr(bn::sprite_items::turnaround32.create_sprite(0, 0)),
                         map_item(map), 
-                        walk_cycle(bn::create_sprite_animate_action_forever(spr_ptr, 16, player_tiles_item, 0, 1, 2, 3)),
-                        player_tiles(player_tiles_item),
+                        player_tiles(bn::sprite_items::turnaround32.tiles_item()),
+                        walk_cycle(bn::create_sprite_animate_action_forever(player_spr_ptr, 16, player_tiles, 0, 1, 2, 3)),
                         kitchen(map) {
                 bn::log(bn::string<20>("Player constructed"));
                 // here 16 is the cell we want to be in, * 8 is to convert to pixels (mb switch to just 128 later?)
@@ -44,10 +43,10 @@ namespace kt {
                 held_fish = nullptr;
                 dir = Down;
 
-                kitchen = Kitchen(map);
+                // kitchen = Kitchen(map);
             };
 
-            bool move_left(int valid_tile) {
+            bool move_left() {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() - 1);
                 if (dir != Left) {
@@ -58,7 +57,7 @@ namespace kt {
                 bn::point new_hitbox_br = bn::point(hitbox_br.x() - 1, hitbox_br.y());
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x() - 1, hitbox_tl.y());
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x() - 1, hitbox_bl.y());
-                if (!_hitbox_collided(new_hitbox_tl, new_hitbox_bl, valid_tile)) {
+                if (!_hitbox_collided(new_hitbox_tl, new_hitbox_bl, kitchen.valid_tile_index())) {
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
@@ -70,7 +69,7 @@ namespace kt {
                 return false;
             };
 
-            bool move_right(int valid_tile) {
+            bool move_right() {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_x(new_player_pos.x() + 1);
                 if (dir != Right) {
@@ -81,7 +80,7 @@ namespace kt {
                 bn::point new_hitbox_br = bn::point(hitbox_br.x() + 1, hitbox_br.y());
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x() + 1, hitbox_tl.y());
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x() + 1, hitbox_bl.y());
-                if (!_hitbox_collided(new_hitbox_tr, new_hitbox_br, valid_tile)) {
+                if (!_hitbox_collided(new_hitbox_tr, new_hitbox_br, kitchen.valid_tile_index())) {
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
@@ -93,7 +92,7 @@ namespace kt {
                 return false;
             };
 
-            bool move_up(int valid_tile) {
+            bool move_up() {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() - 1);
                 if (dir != Up) {
@@ -104,7 +103,7 @@ namespace kt {
                 bn::point new_hitbox_br = bn::point(hitbox_br.x(), hitbox_br.y() - 1);
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x(), hitbox_tl.y() - 1);
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x(), hitbox_bl.y() - 1);
-                if (!_hitbox_collided(new_hitbox_tr, new_hitbox_tl, valid_tile)) {
+                if (!_hitbox_collided(new_hitbox_tr, new_hitbox_tl, kitchen.valid_tile_index())) {
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
@@ -116,7 +115,7 @@ namespace kt {
                 return false;
             };
 
-            bool move_down(int valid_tile) {
+            bool move_down() {
                 bn::point new_player_pos = player_pos;
                 new_player_pos.set_y(new_player_pos.y() + 1);
                 if (dir != Down) {
@@ -127,7 +126,7 @@ namespace kt {
                 bn::point new_hitbox_br = bn::point(hitbox_br.x(), hitbox_br.y() + 1);
                 bn::point new_hitbox_tl = bn::point(hitbox_tl.x(), hitbox_tl.y() + 1);
                 bn::point new_hitbox_bl = bn::point(hitbox_bl.x(), hitbox_bl.y() + 1);
-                if (!_hitbox_collided(new_hitbox_br, new_hitbox_bl, valid_tile)) {
+                if (!_hitbox_collided(new_hitbox_br, new_hitbox_bl, kitchen.valid_tile_index())) {
                     player_pos = new_player_pos;
                     hitbox_tr = new_hitbox_tr;
                     hitbox_br = new_hitbox_br;
@@ -200,10 +199,9 @@ namespace kt {
             };
 
             bn::sprite_ptr player_spr_ptr;
-            bn::sprite_item player_spr_item;
             bn::regular_bg_map_item map_item;
-            bn::sprite_animate_action<4> walk_cycle;
             bn::sprite_tiles_item player_tiles;
+            bn::sprite_animate_action<4> walk_cycle;
             bn::point player_pos;
             Fish* held_fish;
             int dir;

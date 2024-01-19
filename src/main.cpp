@@ -17,12 +17,11 @@
 #include "common_variable_8x16_sprite_font.h"
 
 // ---------- my headers
-#include "player.h"
+#include "level.h"
 
 // ---------- my generated files
 #include "bn_sprite_items_testturnaround.h"
 #include "bn_sprite_items_colortest.h"
-// #include "bn_regular_bg_items_testmap.h"
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_turnaround32.h"
 #include "bn_sprite_items_fish_item.h"
@@ -39,36 +38,30 @@ namespace {
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
-        bn::regular_bg_map_cell valid_cell_1 = map_item.cell(0, 0);
-        // NOTE changing this from 0, 0 to somewhere else causes the player to "jump" to the first movement, not sure why rn
-        kt::Player test_player(bn::sprite_items::turnaround32.create_sprite(0, 0), bn::sprite_items::turnaround32, map_item, bn::sprite_items::turnaround32.tiles_item());
-        int valid_index_1 = bn::regular_bg_map_cell_info(valid_cell_1).tile_index();
+
+        kt::Level test_level(map_item);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
             if (bn::keypad::left_held()) {
-                test_player.move_left(valid_index_1);
-                test_player.update_walk();
+                test_level.move_player_left();
             } else if (bn::keypad::right_held()) {
-                test_player.move_right(valid_index_1);
-                test_player.update_walk();
+                test_level.move_player_right();
             } else if (bn::keypad::up_held()) {
-                test_player.move_up(valid_index_1);
-                test_player.update_walk();
+                test_level.move_player_up();
             } else if (bn::keypad::down_held()) {
-                test_player.move_down(valid_index_1);
-                test_player.update_walk();
+                test_level.move_player_down();
             }
 
             if (bn::keypad::a_pressed()) {
-                test_player.interact();
+                test_level.interact_player();
             }
 
             if (bn::keypad::b_pressed()) {
-                test_player.debug_fish_address();
+                test_level.debug_fish_address();
             }
 
-            test_player.kitchen_update();
+            test_level.player_kitchen_update();
             info.update();
             bn::core::update();
         }
