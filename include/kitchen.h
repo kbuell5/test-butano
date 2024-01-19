@@ -17,7 +17,10 @@ namespace kt {
     enum CellType {
         FishTank,
         Butterfly,
-        Timer
+        Timer,
+        Makeup,
+        Customer,
+        GreenFishTank
     };
 
     class Interactable {
@@ -67,11 +70,22 @@ namespace kt {
                 for (i = 9; i <= 12; i++) {
                     Interactable butterfly_inter(9, 12, true, false, Butterfly, nullptr, -8, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), butterfly_inter));
-
                 }
                 for (i = 13; i <= 16; i++) {
                     Interactable timer_inter(13, 16, true, false, Timer, nullptr, 24, -24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), timer_inter));
+                }
+                for (i = 17; i <= 20; i++) {
+                    Interactable green_fishtank_inter(17, 20, true, true, GreenFishTank, nullptr, -56, 8);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), green_fishtank_inter));
+                }
+                for (i = 21; i <= 24; i++) {
+                    Interactable makeup_inter(21, 24, true, false, Makeup, nullptr, 40, -8);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), makeup_inter));
+                }
+                for (i = 25; i <= 28; i++) {
+                    Interactable customer_inter(25, 28, true, false, Customer, nullptr, 40, 24);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), customer_inter));
                 }
             };
 
