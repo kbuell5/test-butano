@@ -124,6 +124,15 @@ namespace kt {
 
                 // If interactable does not have a fish to pick up
                 if (interactables[i].second.has_fish == false) return false;
+
+                // If interactable is currently upgrading a fish
+                if (interactables[i].second.is_upgrading) {
+                    interactables[i].second.is_upgrading = false;
+                    interactables[i].second.pie_anim.reset();
+                    interactables[i].second.pie_anim.update();
+                    interactables[i].second.pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
+                }
+                
                 held_item = interactables[i].second.fish;
                 bn::log(bn::string<64>("new address for held_item: "));
                 bn::log(bn::to_string<32>(held_item));
