@@ -27,42 +27,73 @@
 #include "bn_sprite_items_fish_item.h"
 
 namespace {
-    void test_startup_scene(bn::sprite_text_generator& text_generator) {
-        constexpr bn::string_view text_lines[] = {
-            "First line",
-            "Second",
-            "Third"
-        };
+    void test_startup_scene() {
+        // constexpr bn::string_view text_lines[] = {
+        //     "First line",
+        //     "Second",
+        //     "Third"
+        // };
 
-        common::info info("This is the info's title", text_lines, text_generator);
+        // common::info info("This is the info's title", text_lines, text_generator);
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
 
-        kt::Level test_level(map_item);
+        // test level 1 fish config requirements
+        bn::vector<kt::FishConfig, 6> fish_configs;
+        // uint8_t fish_config = 0b00000000;
+        kt::FishConfig config_1 = {
+            0b00000000,
+            kt::Purple
+        };
+        kt::FishConfig config_2 = {
+            0b10000000,
+            kt::Purple
+        };
+        kt::FishConfig config_3 = {
+            0b10100000,
+            kt::Green
+        };
+        kt::FishConfig config_4 = {
+            0b00100000,
+            kt::Green
+        };
+        fish_configs.push_back(config_1);
+        fish_configs.push_back(config_2);
+        fish_configs.push_back(config_3);
+        fish_configs.push_back(config_4);
+        
+        kt::Level test_level(map_item, fish_configs);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
-            if (bn::keypad::left_held()) {
-                test_level.move_player_left();
-            } else if (bn::keypad::right_held()) {
-                test_level.move_player_right();
-            } else if (bn::keypad::up_held()) {
-                test_level.move_player_up();
-            } else if (bn::keypad::down_held()) {
-                test_level.move_player_down();
-            }
+            if (test_level.is_level_started()) {
+                if (bn::keypad::left_held()) {
+                    test_level.move_player_left();
+                } else if (bn::keypad::right_held()) {
+                    test_level.move_player_right();
+                } else if (bn::keypad::up_held()) {
+                    test_level.move_player_up();
+                } else if (bn::keypad::down_held()) {
+                    test_level.move_player_down();
+                }
 
-            if (bn::keypad::a_pressed()) {
-                test_level.interact_player();
-            }
+                if (bn::keypad::a_pressed()) {
+                    test_level.interact_player();
+                }
 
-            if (bn::keypad::b_pressed()) {
-                test_level.debug_fish_address();
-            }
+                if (bn::keypad::b_pressed()) {
+                    test_level.debug_fish_address();
+                }
 
-            test_level.player_kitchen_update();
-            info.update();
+                test_level.player_kitchen_update();
+            } else {
+                if (bn::keypad::a_pressed()) {
+                    test_level.start_level();
+                }
+            }
+            
+            // info.update();
             bn::core::update();
         }
     }
@@ -72,11 +103,11 @@ int main()
 {
     bn::core::init();
 
-    bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+    // bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
     bn::bg_palettes::set_transparent_color(bn::color(2, 2, 2));
     while(true)
     {
-        test_startup_scene(text_generator);
+        test_startup_scene();
         bn::core::update();
     }
 }

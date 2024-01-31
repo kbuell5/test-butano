@@ -20,6 +20,13 @@ namespace kt {
         Green
     };
 
+    struct FishConfig {
+//          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
+//          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
+        uint8_t config_bool = 0b00000000;
+        FishType fish_type;
+    };
+
     bn::sprite_item enum_to_sprite_item(FishType type) {
         if (type == Purple) {
             return bn::sprite_items::fish_item;
@@ -34,7 +41,10 @@ namespace kt {
                     fish_spr_item(enum_to_sprite_item(fish_type)),
                     fish_spr_ptr(fish_spr_item.create_sprite(0, 0)) {
                 fish_id = fish_id_counter++;
-                type = fish_type;
+                fish_config = {
+                    0b00000000,
+                    fish_type
+                };
                 show_fish();
             };
 
@@ -58,7 +68,7 @@ namespace kt {
             };
 
             uint8_t get_fish_config() {
-                return fish_config;
+                return fish_config.config_bool;
             };
 
             bn::sprite_ptr get_fish_spr_ptr() {
@@ -66,46 +76,46 @@ namespace kt {
             };
 
             FishType get_fish_type() {
-                return type;
+                return fish_config.fish_type;
             };
 
             bool legs() {
-                return (fish_config & (1 << 7));
+                return (fish_config.config_bool & (1 << 7));
             };
 
             bool kiss() {
-                return (fish_config & (1 << 6));
+                return (fish_config.config_bool & (1 << 6));
             };
 
             bool makeup() {
-                return (fish_config & (1 << 5));
+                return (fish_config.config_bool & (1 << 5));
             };
 
             bool sparkles() {
-                return (fish_config & (1 << 4));
+                return (fish_config.config_bool & (1 << 4));
             };
 
             void give_legs() {
-                fish_config |= 0b10000000;
+                fish_config.config_bool |= 0b10000000;
                 upgrade_sprites.push_back(bn::sprite_items::legs.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
             };
 
             void give_kiss() {
-                fish_config |= 0b01000000;
+                fish_config.config_bool |= 0b01000000;
             };
 
             void give_makeup() {
-                fish_config |= 0b00100000;
+                fish_config.config_bool |= 0b00100000;
                 upgrade_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
                 bn::log(bn::string<16>("woooo"));
             };
 
             void give_sparkles() {
-                fish_config |= 0b00010000;
+                fish_config.config_bool |= 0b00010000;
             };
 
             bool is_basic() {
-                return (fish_config == 0);
+                return (fish_config.config_bool == 0);
             };
 
             void put_fish_below() {
@@ -145,10 +155,7 @@ namespace kt {
             FishType type;
 
             bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
-
-//          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
-//          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
-            uint8_t fish_config = 0b00000000;
+            FishConfig fish_config;
 
             bn::sprite_item fish_spr_item;
             bn::sprite_ptr fish_spr_ptr;

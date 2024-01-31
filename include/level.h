@@ -13,10 +13,14 @@
 namespace kt {
     class Level {
         public:
-            Level(bn::regular_bg_map_item map) :
+            Level(bn::regular_bg_map_item map, bn::vector<FishConfig, 6> fish_con) :
                         player(Player(map)) {
-                // player = Player(map);
+                fish_configs = fish_con;
             };
+
+            bool is_level_started() {
+                return is_started;
+            }
 
             void move_player_up() {
                 player.move_up();
@@ -46,11 +50,30 @@ namespace kt {
                 player.kitchen_update();
             };
 
+            void start_level() {
+                is_started = true;
+            };
+
+            void sell_fish(FishType fish_type) {
+                // if (fish_type == Purple) {
+                //     purple_fish_needed--;
+                // } else if (fish_type == Green) {
+                //     green_fish_needed--;
+                // }
+            }
+
             // debug
             void debug_fish_address() {
                 player.debug_fish_address();
             };
         private:
             Player player;
+            bool is_started = false;
+
+            bn::vector<FishConfig, 6> fish_configs;
+
+            // int purple_fish_needed;
+            // int green_fish_needed;
+            int num_customers;
     };
 }
