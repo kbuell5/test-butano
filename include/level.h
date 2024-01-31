@@ -43,7 +43,11 @@ namespace kt {
             };
 
             void interact_player() {
-                player.interact();
+                bn::optional<FishConfig> maybe_sell_fish = player.interact();
+                if (maybe_sell_fish) {
+                    // Check if the fish attempting to be sold is one of the goal fish
+                    bn::log(bn::string<32>("tripped a maybe sell fish"));
+                }
             };
 
             void player_kitchen_update() {

@@ -67,7 +67,11 @@ namespace kt {
                 return fish_id;
             };
 
-            uint8_t get_fish_config() {
+            FishConfig get_fish_config() {
+                return fish_config;
+            };
+
+            uint8_t get_config_bool() {
                 return fish_config.config_bool;
             };
 
