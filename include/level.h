@@ -42,12 +42,22 @@ namespace kt {
                 player.update_walk();
             };
 
-            void interact_player() {
+            int interact_player() {
                 bn::optional<FishConfig> maybe_sell_fish = player.interact();
                 if (maybe_sell_fish) {
                     // Check if the fish attempting to be sold is one of the goal fish
                     bn::log(bn::string<32>("tripped a maybe sell fish"));
+                    for (bn::vector<FishConfig, 6>::iterator it = fish_configs.begin(); it != fish_configs.end(); it++) {
+                        if (maybe_sell_fish == *it) {
+                            bn::log(bn::string<32>("sell fish found iterator"));
+                            
+                            // Sell fish
+                            int money_earned = sell_fish(it);
+                            return money_earned;
+                        }
+                    }
                 }
+                return 0;
             };
 
             void player_kitchen_update() {
@@ -58,13 +68,13 @@ namespace kt {
                 is_started = true;
             };
 
-            void sell_fish(FishType fish_type) {
-                // if (fish_type == Purple) {
-                //     purple_fish_needed--;
-                // } else if (fish_type == Green) {
-                //     green_fish_needed--;
-                // }
-            }
+            int sell_fish(bn::vector<FishConfig, 6>::iterator fish) {
+                bn::log(bn::string<32>("this shit worked"));
+                bn::log(bn::string<32>(bn::to_string<16>(fish->config_bool)));
+                fish_configs.erase(fish);
+                // TODO scale these based on fish patience?
+                return 45;
+            };
 
             // debug
             void debug_fish_address() {
