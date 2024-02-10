@@ -10,7 +10,7 @@ namespace kt {
     class FishContainer {
         public:
             FishContainer() {
-                balls = 0;
+                try_sell = false;
             };
 
             Fish* add_fish(FishType fish_type) {
@@ -30,8 +30,9 @@ namespace kt {
                 bn::log(bn::string<16>("no fish deleted"));
                 return false;
             };
+
+            bool try_sell;
         private:
             bn::vector<Fish, 32> fishies;
-            int balls;
     };
 }
