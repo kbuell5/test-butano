@@ -25,6 +25,8 @@ namespace kt {
 //          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
         uint8_t config_bool = 0b00000000;
         FishType fish_type;
+
+        bool operator==(const FishConfig&) const = default;
     };
 
     bn::sprite_item enum_to_sprite_item(FishType type) {
@@ -45,7 +47,7 @@ namespace kt {
                     0b00000000,
                     fish_type
                 };
-                show_fish();
+                // show_fish();
             };
 
             Fish(const Fish& other) = default;
@@ -67,7 +69,11 @@ namespace kt {
                 return fish_id;
             };
 
-            uint8_t get_fish_config() {
+            FishConfig get_fish_config() {
+                return fish_config;
+            };
+
+            uint8_t get_fish_config_bool() {
                 return fish_config.config_bool;
             };
 
@@ -152,7 +158,6 @@ namespace kt {
         private:
             static uint32_t fish_id_counter;
             uint32_t fish_id;
-            FishType type;
 
             bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
             FishConfig fish_config;
