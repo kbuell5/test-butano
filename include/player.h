@@ -200,6 +200,10 @@ namespace kt {
                 return kitchen.get_fish_to_sell();
             };
 
+            void sell_fish() {
+                kitchen.sell_fish();
+            };
+
         private:
             bool _hitbox_collided(bn::point p1, bn::point p2, int valid_index) {
                 bn::regular_bg_map_cell p1_map_cell = map_item.cell(bn::point(p1.x() / 8, p1.y() / 8));

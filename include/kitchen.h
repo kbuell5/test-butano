@@ -145,7 +145,13 @@ namespace kt {
                 return interactables[25].second.fish;
             };
 
-            
+            void sell_fish() {
+                for (int i = 24; i <= 27; i++) {
+                    interactables[i].second.fish = nullptr;
+                    interactables[i].second.has_fish = false;
+                    bn::log(bn::to_string<16>(i));
+                }
+            };
 
         private:
             bool _pick_up(int i, Fish *&held_item) {
