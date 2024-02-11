@@ -60,6 +60,8 @@ namespace {
         fish_configs.push_back(config_2);
         fish_configs.push_back(config_3);
         fish_configs.push_back(config_4);
+        fish_configs.push_back(config_2);
+        fish_configs.push_back(config_3);
         
         kt::Level test_level(map_item, fish_configs);
 

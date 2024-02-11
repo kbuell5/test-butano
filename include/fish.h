@@ -49,7 +49,7 @@ namespace kt {
                     0b00000000,
                     fish_type
                 };
-                show_fish();
+                // show_fish();
             };
 
             Fish(const Fish& other) = default;
@@ -75,7 +75,7 @@ namespace kt {
                 return fish_config;
             };
 
-            uint8_t get_config_bool() {
+            uint8_t get_fish_config_bool() {
                 return fish_config.config_bool;
             };
 
@@ -160,7 +160,6 @@ namespace kt {
         private:
             static uint32_t fish_id_counter;
             uint32_t fish_id;
-            FishType type;
 
             bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
             FishConfig fish_config;
