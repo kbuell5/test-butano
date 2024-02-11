@@ -132,6 +132,21 @@ namespace kt {
                 }
             };
 
+            bool selling_fish() {
+                return fish_container.try_sell;
+            };
+
+            void set_selling_fish(bool val) {
+                fish_container.try_sell = val;
+            };
+
+            Fish* get_fish_to_sell() {
+                // NOTE customer interactable is hard coded
+                return interactables[25].second.fish;
+            };
+
+            
+
         private:
             bool _pick_up(int i, Fish *&held_item) {
                 if (interactables[i].second.type == FishTank) {
@@ -182,9 +197,6 @@ namespace kt {
 
             bool _put_down(int i, Fish *&held_item) {
                 // If interactable already has a fish on it
-                // TODO special cases: [ ] fishtank can have fish and also be given back a normal fish
-                                    // [ ] fishtank can have a fish but not be given a modified fish
-                                    // [x] trash can deletes fish, never "has" a fish
                 if ((interactables[i].second.type == FishTank && held_item->get_fish_type() == Purple) || 
                     (interactables[i].second.type == GreenFishTank && held_item->get_fish_type() == Green)) {
                     if (held_item->is_basic()) {
@@ -212,6 +224,20 @@ namespace kt {
                     return true;
                 }
 
+                // If looking at customer (sell point)
+                if (interactables[i].second.type == Customer) {
+                    bn::log(bn::string<32>("attempting to sell fihs"));
+                    // fish_container.sell_slot = held_item;
+                    fish_container.try_sell = true;
+
+                    // held_item = nullptr;
+
+                    // fish_container.sell_slot->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
+                    // fish_container.sell_slot->put_fish_below();
+
+                    // return true;
+                }
+
                 interactables[i].second.fish = held_item;
                 interactables[i].second.has_fish = true;
 
@@ -228,10 +254,7 @@ namespace kt {
                 // If looking at butterfly (legs upgrade)
                 if (interactables[i].second.type == Butterfly && !interactables[i].second.fish->legs()) {
                     interactables[i].second.is_upgrading = true;
-                }
-
-                // If looking at makeup upgrade
-                if (interactables[i].second.type == Makeup && !interactables[i].second.fish->makeup()) {
+                } else if (interactables[i].second.type == Makeup && !interactables[i].second.fish->makeup()) { // If looking at makeup upgrade
                     interactables[i].second.is_upgrading = true;
                 }
 
