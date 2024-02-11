@@ -28,13 +28,11 @@
 
 namespace {
     void test_startup_scene() {
-        // constexpr bn::string_view text_lines[] = {
-        //     "First line",
-        //     "Second",
-        //     "Third"
-        // };
+        bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
+        debug_text.set_left_alignment();
+        bn::vector<bn::sprite_ptr, 32> text_sprites;
+        debug_text.generate(-50, -75, "Money: 0", text_sprites);
 
-        // common::info info("This is the info's title", text_lines, text_generator);
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
@@ -81,7 +79,11 @@ namespace {
                 }
 
                 if (bn::keypad::a_pressed()) {
-                    test_level.interact_player();
+                    int maybe_money = test_level.interact_player();
+                    if (maybe_money != 0) {
+                        text_sprites.clear();
+                        debug_text.generate(-50, -75, bn::string<32>("Money: ") + bn::to_string<16>(maybe_money), text_sprites);
+                    }
                 }
 
                 if (bn::keypad::b_pressed()) {

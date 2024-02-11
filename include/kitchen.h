@@ -6,11 +6,11 @@
 #include "bn_vector.h"
 #include "bn_utility.h"
 #include "bn_sprite_animate_actions.h"
+#include "bn_optional.h"
 
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_piechart.h"
 
-// #include "fish.h"
 #include "fish_container.h"
 
 namespace kt {
@@ -96,20 +96,32 @@ namespace kt {
                 return valid_tile;
             };
 
-            bool interact(int search_index, Fish *&held_item) {
+            uint8_t interact(int search_index, Fish *&held_item) {
+                uint8_t interact_int = 0b00000000;
                 for (int i = 0; i < interactables.size(); i++) {
                     // If we've found the interactable we've collided with
                     if (interactables[i].first == search_index) {
                         bn::log(bn::string<32>("found interactable"));
                         // Is it interactable at the moment?
-                        if (interactables[i].second.is_interactable == false) return false;
+                        if (interactables[i].second.is_interactable == false) return interact_int;
 
                         // Pick up, not holding a fish
                         if (held_item == nullptr) {
-                            return _pick_up(i, held_item);
+                            if (_pick_up(i, held_item)) interact_int |= 0b00000001;
                         } else { // Put down, holding a fish
-                            return _put_down(i, held_item);
+                            uint8_t putted = _put_down(i, held_item);
+                            if (putted & (1 << 0)) {
+                                interact_int |= 0b00000001;
+                                bn::log(bn::string<16>("putted"));
+                            }
+
+                            // If we sold a fish
+                            if (putted & (1 << 1)) {
+                                interact_int |= 0b00000010;
+                                bn::log(bn::string<16>("again"));
+                            }
                         }
+                        return interact_int;
                     }
                 }
                 bn::log(bn::string<32>("interaction failed"));
@@ -201,7 +213,7 @@ namespace kt {
                 return true;
             };
 
-            bool _put_down(int i, Fish *&held_item) {
+            uint8_t _put_down(int i, Fish *&held_item) {
                 // If interactable already has a fish on it
                 if ((interactables[i].second.type == FishTank && held_item->get_fish_type() == Purple) || 
                     (interactables[i].second.type == GreenFishTank && held_item->get_fish_type() == Green)) {
@@ -209,15 +221,15 @@ namespace kt {
                         fish_container.delete_fish(held_item->get_fish_id());
                         held_item = nullptr;
                         bn::log(bn::string<32>("fish put back :3"));
-                        return true;
+                        return 0b00000001;
                     } else {
                         bn::log(bn::string<48>("tried to put modified fish in tank >:3"));
-                        return false;
+                        return 0b00000000;
                     }
                 }
 
                 if (interactables[i].second.has_fish) {
-                    return false;
+                    return 0b00000000;
                 }
                 
                 // If looking at the timer (trash can)
@@ -227,7 +239,16 @@ namespace kt {
                     bn::log(bn::string<32>("frish garbaggio'd"));
                     // bn::log(bn::string<32>("fish id"));
                     // bn::log(bn::to_string<16>(held_item->get_fish_id()));
-                    return true;
+                    return 0b00000001;
+                }
+
+                uint8_t ret = 0b00000000;
+                // If looking at customer (sell point)
+                if (interactables[i].second.type == Customer) {
+                    // fish_container.delete_fish(held_item->get_fish_id());
+                    // held_item = nullptr;
+                    bn::log(bn::string<32>("attempting to sell fihs"));
+                    ret |= 0b00000010;
                 }
 
                 // If looking at customer (sell point)
@@ -268,7 +289,8 @@ namespace kt {
 
                 held_item = nullptr;
                 bn::log(bn::string<32>("successful put down"));
-                return true;
+                ret |= 0b00000001;
+                return ret;
             };
 
             bn::regular_bg_map_item map_item;

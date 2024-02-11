@@ -138,7 +138,7 @@ namespace kt {
                 return false;
             };
 
-            bool interact() {
+            bn::optional<FishConfig> interact() {
                 // Calculate interaction collision point
                 bn::point interact_point;
                 if (dir == Up) {
@@ -151,16 +151,21 @@ namespace kt {
                     interact_point = bn::point(player_pos.x() + 8, player_pos.y() + 1);
                 }
 
+                bn::optional<FishConfig> maybe_sell_fish;
+
                 // Determine if this is a collision or not
                 bn::regular_bg_map_cell interact_cell = map_item.cell(bn::point(interact_point.x() / 8, interact_point.y() / 8));
                 int interact_index = bn::regular_bg_map_cell_info(interact_cell).tile_index();
-                if (interact_index == kitchen.valid_tile_index()) return false;
+                if (interact_index == kitchen.valid_tile_index()) return maybe_sell_fish;
 
-                bool interact_bool = kitchen.interact(interact_index, held_fish);
+                FishConfig temp_config = held_fish->get_fish_config();
+                uint8_t interact_int = kitchen.interact(interact_index, held_fish);
+                if (interact_int & (1 << 0)) update_item_sprite();
+                if (interact_int & (1 << 1)) maybe_sell_fish = temp_config;
 
-                if (interact_bool) update_item_sprite();
+                // if (interact_bool) update_item_sprite();
 
-                return interact_bool;
+                return maybe_sell_fish;
             };
 
             void update_walk() { 

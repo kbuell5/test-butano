@@ -26,7 +26,9 @@ namespace kt {
         uint8_t config_bool = 0b00000000;
         FishType fish_type;
 
-        bool operator==(const FishConfig&) const = default;
+        bool operator==(const FishConfig& other) const {
+            return (config_bool == other.config_bool && fish_type == other.fish_type);
+        }
     };
 
     bn::sprite_item enum_to_sprite_item(FishType type) {
