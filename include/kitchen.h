@@ -235,6 +235,7 @@ namespace kt {
                 // If looking at the timer (trash can)
                 if (interactables[i].second.type == Timer) {
                     fish_container.delete_fish(held_item->get_fish_id());
+                    held_item->delete_fish();
                     held_item = nullptr;
                     bn::log(bn::string<32>("frish garbaggio'd"));
                     // bn::log(bn::string<32>("fish id"));

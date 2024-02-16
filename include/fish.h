@@ -61,6 +61,11 @@ namespace kt {
                 bn::log(bn::string<16>("fish destructed"));
             };
 
+            void delete_fish() {
+                upgrade_sprites.clear();
+                delete &fish_spr_ptr;
+            };
+
             Fish& operator=(const Fish& other) {
                 fish_id = other.fish_id;
                 fish_config = other.fish_config;
