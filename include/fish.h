@@ -41,15 +41,25 @@ namespace kt {
 
     class Fish {
         public:
-            Fish(FishType fish_type) :
-                    fish_spr_item(enum_to_sprite_item(fish_type)),
-                    fish_spr_ptr(fish_spr_item.create_sprite(0, 0)) {
+            Fish(FishType fish_type) {
                 fish_id = fish_id_counter++;
                 fish_config = {
                     0b00000000,
                     fish_type
                 };
-                // show_fish();
+                switch (fish_type) {
+                    case Purple: {
+                        bn::sprite_ptr* fish_spr = new bn::sprite_ptr(bn::sprite_items::fish_item.create_sprite(0, 0));
+                        // fish_spr = bn::sprite_items::fish_item.create_sprite(0, 0);
+                        fish_sprites.push_back(fish_spr);
+                        break;
+                    }
+                    case Green: {
+                        bn::sprite_ptr* fish_spr = new bn::sprite_ptr(bn::sprite_items::green_fish_item.create_sprite(0,0));
+                        fish_sprites.push_back(fish_spr);
+                        break;
+                    }
+                }
             };
 
             Fish(const Fish& other) = default;
@@ -62,8 +72,8 @@ namespace kt {
             };
 
             void delete_fish() {
-                upgrade_sprites.clear();
-                delete &fish_spr_ptr;
+                // upgrade_sprites.clear();
+                // delete &fish_spr_ptr;
             };
 
             Fish& operator=(const Fish& other) {
@@ -84,9 +94,9 @@ namespace kt {
                 return fish_config.config_bool;
             };
 
-            bn::sprite_ptr get_fish_spr_ptr() {
-                return fish_spr_ptr;
-            };
+            // bn::sprite_ptr get_fish_spr_ptr() {
+            //     return fish_spr_ptr;
+            // };
 
             FishType get_fish_type() {
                 return fish_config.fish_type;
@@ -110,7 +120,8 @@ namespace kt {
 
             void give_legs() {
                 fish_config.config_bool |= 0b10000000;
-                upgrade_sprites.push_back(bn::sprite_items::legs.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
+                bn::sprite_ptr* legs = new bn::sprite_ptr(bn::sprite_items::legs.create_sprite(fish_sprites[0]->position().x(), fish_sprites[0]->position().y()));
+                fish_sprites.push_back(legs);
             };
 
             void give_kiss() {
@@ -119,7 +130,8 @@ namespace kt {
 
             void give_makeup() {
                 fish_config.config_bool |= 0b00100000;
-                upgrade_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_spr_ptr.position().x(), fish_spr_ptr.position().y()));
+                bn::sprite_ptr* makeup = new bn::sprite_ptr(bn::sprite_items::fish_makeup.create_sprite(fish_sprites[0]->position().x(), fish_sprites[0]->position().y()));
+                fish_sprites.push_back(makeup);
                 bn::log(bn::string<16>("woooo"));
             };
 
@@ -132,33 +144,33 @@ namespace kt {
             };
 
             void put_fish_below() {
-                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
-                    it->put_below();
-                }
-                fish_spr_ptr.put_below();
+                // for (bn::vector<bn::sprite_ptr, 8>::iterator it = fish_sprites.begin(); it != fish_sprites.end(); it++) {
+                //     it->put_below();
+                // }
+                // fish_spr_ptr.put_below();
             };
 
             void put_fish_above() {
-                fish_spr_ptr.put_above();
-                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
-                    it->put_above();
-                }  
+                // fish_spr_ptr.put_above();
+                // for (bn::vector<bn::sprite_ptr, 8>::iterator it = fish_sprites.begin(); it != fish_sprites.end(); it++) {
+                //     it->put_above();
+                // }  
             };
 
             // these may be obsolete
             void show_fish() {
-                fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(1));
+                // fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(1));
                 // TODO show customized stuff
             };
 
             void hide_fish() {
-                fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(0));
+                // fish_spr_ptr.set_tiles(fish_spr_item.tiles_item().create_tiles(0));
             };
 
             void update_fish_location(int x, int y) {
-                fish_spr_ptr.set_position(x, y);
-                for (bn::vector<bn::sprite_ptr, 8>::iterator it = upgrade_sprites.begin(); it != upgrade_sprites.end(); it++) {
-                    it->set_position(x, y);
+                // fish_spr_ptr.set_position(x, y);
+                for (bn::vector<bn::sprite_ptr*, 8>::iterator it = fish_sprites.begin(); it != fish_sprites.end(); it++) {
+                    (*it)->set_position(x, y);
                 }
             };
 
@@ -166,11 +178,11 @@ namespace kt {
             static uint32_t fish_id_counter;
             uint32_t fish_id;
 
-            bn::vector<bn::sprite_ptr, 8> upgrade_sprites;
+            bn::vector<bn::sprite_ptr*, 8> fish_sprites;
             FishConfig fish_config;
 
-            bn::sprite_item fish_spr_item;
-            bn::sprite_ptr fish_spr_ptr;
+            // bn::sprite_item fish_spr_item;
+            // bn::sprite_ptr fish_spr_ptr;
     };
 
     uint32_t Fish::fish_id_counter = 0;
