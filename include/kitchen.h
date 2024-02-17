@@ -12,7 +12,8 @@
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_piechart.h"
 
-#include "fish_container.h"
+// #include "fish_container.h"
+#include "fish.h"
 
 namespace kt {
     enum CellType {
@@ -92,6 +93,8 @@ namespace kt {
                     Interactable customer_inter(25, 28, true, false, Customer, 40, 24);
                     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(25, 28, true, false, Customer, 40, 24)));
                 }
+
+                try_sell = false;
             };
 
             int valid_tile_index() {
@@ -148,11 +151,13 @@ namespace kt {
             };
 
             bool selling_fish() {
-                return fish_container.try_sell;
+                // return fish_container.try_sell;
+                return try_sell;
             };
 
             void set_selling_fish(bool val) {
-                fish_container.try_sell = val;
+                // fish_container.try_sell = val;
+                try_sell = val;
             };
 
             bn::unique_ptr<Fish>& get_fish_to_sell() {
@@ -173,12 +178,18 @@ namespace kt {
                 bn::log(bn::string<16>("gogogogo"));
                 if (interactables[i].second.type == FishTank) {
                     bn::log(bn::string<16>("dd"));
-                    held_item.swap(fish_container.add_fish(Purple));
+                    // held_item.swap(fish_container.add_fish(Purple));
+                    fish_counter++;
+                    bn::unique_ptr<Fish> new_fish = bn::make_unique<Fish>(Purple); // this should go out of scope and die?
+                    held_item.swap(new_fish);
                     return true;
                 }
 
                 if (interactables[i].second.type == GreenFishTank) {
-                    fish_container.add_fish(Green);
+                    // fish_container.add_fish(Green);
+                    fish_counter++;
+                    bn::unique_ptr<Fish> new_fish = bn::make_unique<Fish>(Green); // this should go out of scope and die?
+                    held_item.swap(new_fish);
                     return true;
                 }
 
@@ -225,7 +236,8 @@ namespace kt {
                 if ((interactables[i].second.type == FishTank && held_item->get_fish_type() == Purple) || 
                     (interactables[i].second.type == GreenFishTank && held_item->get_fish_type() == Green)) {
                     if (held_item->is_basic()) {
-                        fish_container.delete_fish(held_item->get_fish_id());
+                        // fish_container.delete_fish(held_item->get_fish_id());
+                        fish_counter--;
                         held_item.reset();
                         bn::log(bn::string<32>("fish put back :3"));
                         return 0b00000001;
@@ -241,7 +253,8 @@ namespace kt {
                 
                 // If looking at the timer (trash can)
                 if (interactables[i].second.type == Timer) {
-                    int temp_id = held_item->get_fish_id();
+                    // int temp_id = held_item->get_fish_id();
+                    fish_counter--;
                     held_item.reset();
                     // fish_container.delete_fish(temp_id);
                     // held_item->delete_fish();
@@ -260,21 +273,9 @@ namespace kt {
                     // fish_container.delete_fish(held_item->get_fish_id());
                     // held_item = nullptr;
                     bn::log(bn::string<32>("attempting to sell fihs"));
+                    try_sell = true;
+
                     ret |= 0b00000010;
-                }
-
-                // If looking at customer (sell point)
-                if (interactables[i].second.type == Customer) {
-                    bn::log(bn::string<32>("attempting to sell fihs"));
-                    // fish_container.sell_slot = held_item;
-                    fish_container.try_sell = true;
-
-                    // held_item = nullptr;
-
-                    // fish_container.sell_slot->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
-                    // fish_container.sell_slot->put_fish_below();
-
-                    // return true;
                 }
 
                 interactables[i].second.fish.swap(held_item);
@@ -310,6 +311,9 @@ namespace kt {
             int valid_tile;
             bn::vector<bn::pair<int, Interactable>, 64> interactables;
 
-            FishContainer fish_container;
+            // FishContainer fish_container;
+            // bn::vector<bn::unique_ptr<Fish>, 8> fishies;
+            int fish_counter;
+            bool try_sell;
     };
 }
