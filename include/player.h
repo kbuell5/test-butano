@@ -8,6 +8,7 @@
 #include "bn_regular_bg_ptr.h"
 #include "bn_regular_bg_map_item.h"
 #include "bn_sprite_animate_actions.h"
+#include "bn_unique_ptr.h"
 
 // my generated headers
 #include "bn_sprite_items_turnaround32.h"
@@ -40,7 +41,6 @@ namespace kt {
                 hitbox_br = bn::point(start_pt + 5, start_pt + 15);
                 hitbox_tl = bn::point(start_pt - 5, start_pt + 1);
                 hitbox_tr = bn::point(start_pt + 5, start_pt + 1);
-                held_fish = nullptr;
                 dir = Down;
 
                 // kitchen = Kitchen(map);
@@ -158,12 +158,12 @@ namespace kt {
                 int interact_index = bn::regular_bg_map_cell_info(interact_cell).tile_index();
                 if (interact_index == kitchen.valid_tile_index()) return maybe_sell_fish;
 
-                FishConfig temp_config = held_fish->get_fish_config();
+                // if (held_fish)
+                //     FishConfig temp_config = held_fish->get_fish_config();
+
                 uint8_t interact_int = kitchen.interact(interact_index, held_fish);
                 if (interact_int & (1 << 0)) update_item_sprite();
-                if (interact_int & (1 << 1)) maybe_sell_fish = temp_config;
-
-                // if (interact_bool) update_item_sprite();
+                // if (interact_int & (1 << 1)) maybe_sell_fish = temp_config;
 
                 return maybe_sell_fish;
             };
@@ -186,13 +186,6 @@ namespace kt {
                 kitchen.update();
             };
 
-            void debug_fish_address() {
-                bn::log(bn::string<32>("current fish memory address: "));
-                bn::log(bn::to_string<64>(held_fish));
-                bn::log(bn::string<16>("fish basic?"));
-                bn::log(bn::to_string<16>(held_fish->is_basic()));
-            };
-
             bool selling_fish() {
                 return kitchen.selling_fish();
             };
@@ -201,7 +194,7 @@ namespace kt {
                 kitchen.set_selling_fish(val);
             };
 
-            Fish* get_fish_to_sell() {
+            bn::unique_ptr<Fish>& get_fish_to_sell() {
                 return kitchen.get_fish_to_sell();
             };
 
@@ -224,7 +217,7 @@ namespace kt {
             bn::sprite_tiles_item player_tiles;
             bn::sprite_animate_action<4> walk_cycle;
             bn::point player_pos;
-            Fish* held_fish;
+            bn::unique_ptr<Fish> held_fish;
             int dir;
             bn::point hitbox_tr;
             bn::point hitbox_br;
