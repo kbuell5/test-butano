@@ -7,6 +7,7 @@
 #include "bn_utility.h"
 #include "bn_sprite_animate_actions.h"
 #include "bn_optional.h"
+#include "bn_unique_ptr.h"
 
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_piechart.h"
@@ -25,7 +26,7 @@ namespace kt {
 
     class Interactable {
         public:
-            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, Fish* fish_object, int center_x, int center_y) :
+            Interactable(int min_x_cell, int max_x_cell, bool interact, bool has_a_fish, CellType type_of_cell, int center_x, int center_y) :
                         pie_chart_ptr(bn::sprite_items::piechart.create_sprite(center_x, center_y)),
                         pie_anim(bn::create_sprite_animate_action_once(pie_chart_ptr, 20, bn::sprite_items::piechart.tiles_item(), 1, 2, 3, 4, 5, 6, 7, 8, 9)) {
                 min_x = min_x_cell;
@@ -33,7 +34,7 @@ namespace kt {
                 is_interactable = interact;
                 has_fish = has_a_fish;
                 type = type_of_cell;
-                fish = fish_object;
+                fish.reset();
                 center = bn::point(center_x, center_y);
             };
 
@@ -44,6 +45,7 @@ namespace kt {
                 } else if (type == Makeup) {
                     fish->give_makeup();
                     bn::log(bn::string<32>("gave fish makeup"));
+                    bn::log(bn::string<32>("gave fish makeup"));
                 }
             };
 
@@ -53,7 +55,7 @@ namespace kt {
             bool is_upgrading = false;
             bool has_fish = false;
             CellType type;
-            Fish* fish = nullptr;
+            bn::unique_ptr<Fish> fish;
             bn::point center;
             bn::sprite_ptr pie_chart_ptr;
             bn::sprite_animate_action<9> pie_anim;
@@ -67,28 +69,28 @@ namespace kt {
                 // ---------- Define interactable tiles
                 int i = 1;
                 for (i = 1; i <= 8; i++) {
-                    Interactable fishtank_inter(1, 8, true, true, FishTank, nullptr, -32, -24);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), fishtank_inter));
+                    Interactable fishtank_inter(1, 8, true, true, FishTank, -32, -24);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(1, 8, true, true, FishTank, -32, -24)));
                 }
                 for (i = 9; i <= 12; i++) {
-                    Interactable butterfly_inter(9, 12, true, false, Butterfly, nullptr, -8, -24);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), butterfly_inter));
+                    Interactable butterfly_inter(9, 12, true, false, Butterfly, -8, -24);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(9, 12, true, false, Butterfly, -8, -24)));
                 }
                 for (i = 13; i <= 16; i++) {
-                    Interactable timer_inter(13, 16, true, false, Timer, nullptr, 24, -24);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), timer_inter));
+                    Interactable timer_inter(13, 16, true, false, Timer, 24, -24);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(13, 16, true, false, Timer, 24, -24)));
                 }
                 for (i = 17; i <= 20; i++) {
-                    Interactable green_fishtank_inter(17, 20, true, true, GreenFishTank, nullptr, -56, 8);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), green_fishtank_inter));
+                    Interactable green_fishtank_inter(17, 20, true, true, GreenFishTank, -56, 8);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(17, 20, true, true, GreenFishTank, -56, 8)));
                 }
                 for (i = 21; i <= 24; i++) {
-                    Interactable makeup_inter(21, 24, true, false, Makeup, nullptr, 40, -8);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), makeup_inter));
+                    Interactable makeup_inter(21, 24, true, false, Makeup, 40, -8);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(21, 24, true, false, Makeup, 40, -8)));
                 }
                 for (i = 25; i <= 28; i++) {
-                    Interactable customer_inter(25, 28, true, false, Customer, nullptr, 40, 24);
-                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), customer_inter));
+                    Interactable customer_inter(25, 28, true, false, Customer, 40, 24);
+                    interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(25, 28, true, false, Customer, 40, 24)));
                 }
             };
 
@@ -96,7 +98,7 @@ namespace kt {
                 return valid_tile;
             };
 
-            uint8_t interact(int search_index, Fish *&held_item) {
+            uint8_t interact(int search_index, bn::unique_ptr<Fish>& held_item) {
                 uint8_t interact_int = 0b00000000;
                 for (int i = 0; i < interactables.size(); i++) {
                     // If we've found the interactable we've collided with
@@ -106,7 +108,7 @@ namespace kt {
                         if (interactables[i].second.is_interactable == false) return interact_int;
 
                         // Pick up, not holding a fish
-                        if (held_item == nullptr) {
+                        if (!held_item) {
                             if (_pick_up(i, held_item)) interact_int |= 0b00000001;
                         } else { // Put down, holding a fish
                             uint8_t putted = _put_down(i, held_item);
@@ -121,6 +123,7 @@ namespace kt {
                                 bn::log(bn::string<16>("again"));
                             }
                         }
+                        // fish_container.print_fish();
                         return interact_int;
                     }
                 }
@@ -152,28 +155,30 @@ namespace kt {
                 fish_container.try_sell = val;
             };
 
-            Fish* get_fish_to_sell() {
+            bn::unique_ptr<Fish>& get_fish_to_sell() {
                 // NOTE customer interactable is hard coded
                 return interactables[25].second.fish;
             };
 
             void sell_fish() {
                 for (int i = 24; i <= 27; i++) {
-                    interactables[i].second.fish = nullptr;
+                    interactables[i].second.fish.reset();
                     interactables[i].second.has_fish = false;
                     bn::log(bn::to_string<16>(i));
                 }
             };
 
         private:
-            bool _pick_up(int i, Fish *&held_item) {
+            bool _pick_up(int i, bn::unique_ptr<Fish>& held_item) {
+                bn::log(bn::string<16>("gogogogo"));
                 if (interactables[i].second.type == FishTank) {
-                    held_item = fish_container.add_fish(Purple);
+                    bn::log(bn::string<16>("dd"));
+                    held_item.swap(fish_container.add_fish(Purple));
                     return true;
                 }
 
                 if (interactables[i].second.type == GreenFishTank) {
-                    held_item = fish_container.add_fish(Green);
+                    fish_container.add_fish(Green);
                     return true;
                 }
 
@@ -187,39 +192,41 @@ namespace kt {
                     interactables[i].second.pie_anim.update();
                     interactables[i].second.pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
                 }
-                
-                held_item = interactables[i].second.fish;
+                bn::log(bn::string<64>("dfgdfg: "));
+                // held_item = interactables[i].second.fish;
+                held_item.swap(interactables[i].second.fish);
+                bn::log(bn::string<64>("eeeee: "));
                 bn::log(bn::string<64>("new address for held_item: "));
-                bn::log(bn::to_string<32>(held_item));
+                // bn::log(bn::to_string<32>(*held_item));
                 // Update flags of current cell
                 interactables[i].second.has_fish = false;
-                interactables[i].second.fish = nullptr;
+                // interactables[i].second.fish = nullptr;
                 bn::log(bn::string<64>("maybe we fucked up: "));
-                bn::log(bn::to_string<32>(held_item));
+                // bn::log(bn::to_string<32>(*held_item));
 
 
                 // Update flags of associated cells
                 // NOTE this only works because i've hardcoded the vector values to be sorted based on x value
                 for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
                     interactables[j].second.has_fish = false;
-                    interactables[j].second.fish = nullptr;
+                    // interactables[j].second.fish = nullptr;
                 }
                 for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
                     interactables[k].second.has_fish = false;
-                    interactables[k].second.fish = nullptr;
+                    // interactables[k].second.fish = nullptr;
                 }
                 held_item->put_fish_above();
                 bn::log(bn::string<32>("successful pick up"));
                 return true;
             };
 
-            uint8_t _put_down(int i, Fish *&held_item) {
+            uint8_t _put_down(int i, bn::unique_ptr<Fish>& held_item) {
                 // If interactable already has a fish on it
                 if ((interactables[i].second.type == FishTank && held_item->get_fish_type() == Purple) || 
                     (interactables[i].second.type == GreenFishTank && held_item->get_fish_type() == Green)) {
                     if (held_item->is_basic()) {
                         fish_container.delete_fish(held_item->get_fish_id());
-                        held_item = nullptr;
+                        held_item.reset();
                         bn::log(bn::string<32>("fish put back :3"));
                         return 0b00000001;
                     } else {
@@ -234,9 +241,13 @@ namespace kt {
                 
                 // If looking at the timer (trash can)
                 if (interactables[i].second.type == Timer) {
-                    fish_container.delete_fish(held_item->get_fish_id());
-                    held_item->delete_fish();
-                    held_item = nullptr;
+                    int temp_id = held_item->get_fish_id();
+                    held_item.reset();
+                    // fish_container.delete_fish(temp_id);
+                    // held_item->delete_fish();
+                    
+                    // bn::log(bn::to_string<16>(held_item->get_fish_config_bool()));
+                    // held_item = nullptr;
                     bn::log(bn::string<32>("frish garbaggio'd"));
                     // bn::log(bn::string<32>("fish id"));
                     // bn::log(bn::to_string<16>(held_item->get_fish_id()));
@@ -266,16 +277,16 @@ namespace kt {
                     // return true;
                 }
 
-                interactables[i].second.fish = held_item;
+                interactables[i].second.fish.swap(held_item);
                 interactables[i].second.has_fish = true;
 
                 for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
                     interactables[j].second.has_fish = true;
-                    interactables[i].second.fish = held_item;
+                    // interactables[i].second.fish = held_item;
                 }
                 for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
                     interactables[k].second.has_fish = true;
-                    interactables[k].second.fish = held_item;
+                    // interactables[k].second.fish = held_item;
                 }
                 interactables[i].second.fish->update_fish_location(interactables[i].second.center.x(), interactables[i].second.center.y());
 
@@ -288,7 +299,7 @@ namespace kt {
 
                 interactables[i].second.fish->put_fish_below();
 
-                held_item = nullptr;
+                held_item.reset();
                 bn::log(bn::string<32>("successful put down"));
                 ret |= 0b00000001;
                 return ret;
