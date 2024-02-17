@@ -184,10 +184,6 @@ namespace kt {
                 
             };
 
-            // debug
-            void debug_fish_address() {
-                player.debug_fish_address();
-            };
         private:
             Player player;
             bool is_started = false;

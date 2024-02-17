@@ -87,9 +87,8 @@ namespace {
                     // }
                 }
 
-                if (bn::keypad::b_pressed()) {
-                    test_level.debug_fish_address();
-                }
+                // if (bn::keypad::b_pressed()) {
+                // }
 
                 test_level.player_kitchen_update();
             } else {

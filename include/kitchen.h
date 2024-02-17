@@ -63,7 +63,6 @@ namespace kt {
     class Kitchen {
         public:
             Kitchen(bn::regular_bg_map_item map) : map_item(map), valid_cell(map_item.cell(0, 0)) {
-                // valid_cell = map_item.cell(0, 0);
                 valid_tile = bn::regular_bg_map_cell_info(valid_cell).tile_index();
                 // ---------- Define interactable tiles
                 int i = 1;
@@ -97,32 +96,7 @@ namespace kt {
                 for (i = 28; i <= 28; i++) {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
-                // int i = 1;
-                // for (i = 1; i <= 8; i++) {
-                //     Interactable fishtank_inter(1, 8, true, true, FishTank, -32, -24);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(1, 8, true, true, FishTank, -32, -24)));
-                // }
-                // for (i = 9; i <= 12; i++) {
-                //     Interactable butterfly_inter(9, 12, true, false, Butterfly, -8, -24);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(9, 12, true, false, Butterfly, -8, -24)));
-                // }
-                // for (i = 13; i <= 16; i++) {
-                //     Interactable timer_inter(13, 16, true, false, Timer, 24, -24);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(13, 16, true, false, Timer, 24, -24)));
-                // }
-                // for (i = 17; i <= 20; i++) {
-                //     Interactable green_fishtank_inter(17, 20, true, true, GreenFishTank, -56, 8);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(17, 20, true, true, GreenFishTank, -56, 8)));
-                // }
-                // for (i = 21; i <= 24; i++) {
-                //     Interactable makeup_inter(21, 24, true, false, Makeup, 40, -8);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(21, 24, true, false, Makeup, 40, -8)));
-                // }
-                // for (i = 25; i <= 28; i++) {
-                //     Interactable customer_inter(25, 28, true, false, Customer, 40, 24);
-                //     interactables.push_back(bn::pair<int, Interactable>(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index(), Interactable(25, 28, true, false, Customer, 40, 24)));
-                // }
-
+                
                 try_sell = false;
             };
 
@@ -134,12 +108,10 @@ namespace kt {
                 uint8_t interact_int = 0b00000000;
                 for (int i = 0; i < interactables.size(); i++) {
                     // If we've found the interactable we've collided with
-                    // if (interactables[i].first == search_index) {
                     for (int j = 0; j < interactables[i].tile_indices.size(); j++) {
                         if (interactables[i].tile_indices[j] == search_index) {
                             bn::log(bn::string<32>("found interactable"));
                             // Is it interactable at the moment?
-                            // if (interactables[i].second.is_interactable == false) return interact_int;
                             if (interactables[i].is_interactable == false) return interact_int;
 
                             // Pick up, not holding a fish
@@ -158,7 +130,6 @@ namespace kt {
                                     bn::log(bn::string<16>("again"));
                                 }
                             }
-                            // fish_container.print_fish();
                             return interact_int;
                         }
                     }
@@ -169,19 +140,6 @@ namespace kt {
             };
 
             void update() {
-                // for (bn::vector<Interactable, 32>::iterator it = interactables.begin(); it != interactables.end(); it++) {
-                //     if (it->second.is_upgrading && !it->second.pie_anim.done()) {
-                //         it->second.pie_anim.update();
-                //         if (it->second.pie_anim.done()) {
-                //             it->second.is_upgrading = false;
-                //             it->second.pie_anim.reset();
-                //             it->second.pie_anim.update();
-                //             it->second.pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
-
-                //             it->second.do_action();
-                //         }
-                //     }
-                // }
                 for (Interactable& inter : interactables) {
                     if (inter.is_upgrading && !inter.pie_anim.done()) {
                         inter.pie_anim.update();
@@ -198,30 +156,21 @@ namespace kt {
             };
 
             bool selling_fish() {
-                // return fish_container.try_sell;
                 return try_sell;
             };
 
             void set_selling_fish(bool val) {
-                // fish_container.try_sell = val;
                 try_sell = val;
             };
 
             bn::unique_ptr<Fish>& get_fish_to_sell() {
                 // NOTE customer interactable is hard coded
-                // return interactables[25].second.fish;
                 return interactables[5].fish;
             };
 
             void sell_fish() {
-                // for (int i = 24; i <= 27; i++) {
-                //     interactables[i].second.fish.reset();
-                //     interactables[i].second.has_fish = false;
-                //     bn::log(bn::to_string<16>(i));
-                // }
                 interactables[5].fish.reset();
                 interactables[5].has_fish = false;
-
             };
 
         private:
@@ -229,7 +178,6 @@ namespace kt {
                 bn::log(bn::string<16>("gogogogo"));
                 if (interactables[i].type == FishTank) {
                     bn::log(bn::string<16>("dd"));
-                    // held_item.swap(fish_container.add_fish(Purple));
                     fish_counter++;
                     bn::unique_ptr<Fish> new_fish = bn::make_unique<Fish>(Purple); // this should go out of scope and die?
                     held_item.swap(new_fish);
@@ -237,7 +185,6 @@ namespace kt {
                 }
 
                 if (interactables[i].type == GreenFishTank) {
-                    // fish_container.add_fish(Green);
                     fish_counter++;
                     bn::unique_ptr<Fish> new_fish = bn::make_unique<Fish>(Green); // this should go out of scope and die?
                     held_item.swap(new_fish);
@@ -255,28 +202,15 @@ namespace kt {
                     interactables[i].pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
                 }
                 bn::log(bn::string<64>("dfgdfg: "));
-                // held_item = interactables[i].second.fish;
                 held_item.swap(interactables[i].fish);
                 bn::log(bn::string<64>("eeeee: "));
                 bn::log(bn::string<64>("new address for held_item: "));
                 // bn::log(bn::to_string<32>(*held_item));
                 // Update flags of current cell
                 interactables[i].has_fish = false;
-                // interactables[i].second.fish = nullptr;
                 bn::log(bn::string<64>("maybe we fucked up: "));
                 // bn::log(bn::to_string<32>(*held_item));
 
-
-                // Update flags of associated cells
-                // NO-TE this only works because i've hardcoded the vector values to be sorted based on x value
-                // for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
-                //     interactables[j].second.has_fish = false;
-                //     // interactables[j].second.fish = nullptr;
-                // }
-                // for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
-                //     interactables[k].second.has_fish = false;
-                //     // interactables[k].second.fish = nullptr;
-                // }
                 held_item->put_fish_above();
                 bn::log(bn::string<32>("successful pick up"));
                 return true;
@@ -287,7 +221,6 @@ namespace kt {
                 if ((interactables[i].type == FishTank && held_item->get_fish_type() == Purple) || 
                     (interactables[i].type == GreenFishTank && held_item->get_fish_type() == Green)) {
                     if (held_item->is_basic()) {
-                        // fish_container.delete_fish(held_item->get_fish_id());
                         fish_counter--;
                         held_item.reset();
                         bn::log(bn::string<32>("fish put back :3"));
@@ -304,25 +237,15 @@ namespace kt {
                 
                 // If looking at the timer (trash can)
                 if (interactables[i].type == Timer) {
-                    // int temp_id = held_item->get_fish_id();
                     fish_counter--;
                     held_item.reset();
-                    // fish_container.delete_fish(temp_id);
-                    // held_item->delete_fish();
-                    
-                    // bn::log(bn::to_string<16>(held_item->get_fish_config_bool()));
-                    // held_item = nullptr;
                     bn::log(bn::string<32>("frish garbaggio'd"));
-                    // bn::log(bn::string<32>("fish id"));
-                    // bn::log(bn::to_string<16>(held_item->get_fish_id()));
                     return 0b00000001;
                 }
 
                 uint8_t ret = 0b00000000;
                 // If looking at customer (sell point)
                 if (interactables[i].type == Customer) {
-                    // fish_container.delete_fish(held_item->get_fish_id());
-                    // held_item = nullptr;
                     bn::log(bn::string<32>("attempting to sell fihs"));
                     try_sell = true;
 
@@ -332,14 +255,6 @@ namespace kt {
                 interactables[i].fish.swap(held_item);
                 interactables[i].has_fish = true;
 
-                // for (int j = i - 1; j >= interactables[i].second.min_x - 1; j--) {
-                //     interactables[j].second.has_fish = true;
-                //     // interactables[i].second.fish = held_item;
-                // }
-                // for (int k = i + 1; k <= interactables[i].second.max_x - 1; k++) {
-                //     interactables[k].second.has_fish = true;
-                //     // interactables[k].second.fish = held_item;
-                // }
                 interactables[i].fish->update_fish_location(interactables[i].center.x(), interactables[i].center.y());
 
                 // If looking at butterfly (legs upgrade)
@@ -362,8 +277,6 @@ namespace kt {
             int valid_tile;
             bn::vector<Interactable, 32> interactables;
 
-            // FishContainer fish_container;
-            // bn::vector<bn::unique_ptr<Fish>, 8> fishies;
             int fish_counter;
             bool try_sell;
     };

@@ -41,7 +41,6 @@ namespace kt {
                 hitbox_br = bn::point(start_pt + 5, start_pt + 15);
                 hitbox_tl = bn::point(start_pt - 5, start_pt + 1);
                 hitbox_tr = bn::point(start_pt + 5, start_pt + 1);
-                // held_fish = nullptr;
                 dir = Down;
 
                 // kitchen = Kitchen(map);
@@ -159,14 +158,12 @@ namespace kt {
                 int interact_index = bn::regular_bg_map_cell_info(interact_cell).tile_index();
                 if (interact_index == kitchen.valid_tile_index()) return maybe_sell_fish;
 
-                if (held_fish)
-                    FishConfig temp_config = held_fish->get_fish_config();
+                // if (held_fish)
+                //     FishConfig temp_config = held_fish->get_fish_config();
 
                 uint8_t interact_int = kitchen.interact(interact_index, held_fish);
                 if (interact_int & (1 << 0)) update_item_sprite();
                 // if (interact_int & (1 << 1)) maybe_sell_fish = temp_config;
-
-                // if (interact_bool) update_item_sprite();
 
                 return maybe_sell_fish;
             };
@@ -187,13 +184,6 @@ namespace kt {
 
             void kitchen_update() {
                 kitchen.update();
-            };
-
-            void debug_fish_address() {
-                bn::log(bn::string<32>("current fish memory address: "));
-                bn::log(bn::to_string<64>(held_fish));
-                bn::log(bn::string<16>("fish basic?"));
-                bn::log(bn::to_string<16>(held_fish->is_basic()));
             };
 
             bool selling_fish() {
