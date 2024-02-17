@@ -12,7 +12,6 @@
 #include "bn_regular_bg_items_map_interactive.h"
 #include "bn_sprite_items_piechart.h"
 
-// #include "fish_container.h"
 #include "fish.h"
 
 namespace kt {
@@ -43,7 +42,6 @@ namespace kt {
                     bn::log(bn::string<32>("gave fish legs (in interactable)"));
                 } else if (type == Makeup) {
                     fish->give_makeup();
-                    bn::log(bn::string<32>("gave fish makeup"));
                     bn::log(bn::string<32>("gave fish makeup"));
                 }
             };
