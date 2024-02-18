@@ -91,7 +91,7 @@ namespace kt {
                 }
 
                 interactables.push_back(Interactable(true, false, Customer, 40, 24));
-                for (i = 28; i <= 28; i++) {
+                for (i = 25; i <= 28; i++) {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
                 

@@ -24,16 +24,17 @@ namespace kt {
                 fish_configs = fish_con;
 
                 // Set up fish sprites at the top of the screen
-                int num_fish = bn::min(fish_configs.size(), 4);
-                bn::log(bn::to_string<16>(num_fish));
-                int x_pos = ((240 - ((num_fish * 16) + ((num_fish - 1) * fish_spacing))) / 2) - 120 + 8;
+                x_poses.push_back(-72);
+                x_poses.push_back(-24);
+                x_poses.push_back(24);
+                x_poses.push_back(72);
+            
                 int y_pos = -50;
 
                 bn::blending::set_intensity_alpha(0.0);
 
-                for (int i = 0; i < num_fish; i++) {
-                    create_fish_spr_from_config(fish_configs[i], x_pos, y_pos);
-                    x_pos += (fish_spacing * 1.5);
+                for (int i = 0; i < 4; i++) {
+                    create_fish_spr_from_config(fish_configs[i], x_poses[i], y_pos);
                 }
             };
 
@@ -63,6 +64,7 @@ namespace kt {
 
             void interact_player() {
                 if (player.interact()) {
+                    bn::log(bn::string<16>("pierogies"));
                     // Check for sell attempt
                     if (player.selling_fish()) {
                         bn::log(bn::string<32>("selling a fsh mayebe"));
@@ -96,6 +98,7 @@ namespace kt {
 
             void start_level() {
                 is_started = true;
+
             };
 
             int sell_fish(FishConfig* it, int counter) {
@@ -179,6 +182,10 @@ namespace kt {
                 bn::log(bn::string<32>("bob marley"));
             };
 
+            void show_goal_fish() {
+
+            };
+
             void goal_fish_wrong() {
                 
                 
@@ -190,6 +197,7 @@ namespace kt {
 
             bn::vector<FishConfig, 6> fish_configs;
             bn::vector<bn::vector<bn::sprite_ptr, 5>, 10> goal_fish_sprs;
+            bn::vector<int, 4> x_poses;
 
             int num_customers;
 
