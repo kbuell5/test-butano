@@ -36,10 +36,11 @@ namespace kt {
                 x_poses.push_back(-24);
                 x_poses.push_back(-72);
 
-                slide_fish.push_back(false);
-                slide_fish.push_back(false);
-                slide_fish.push_back(false);
-                slide_fish.push_back(false);
+                slide_fish = 4;
+                // slide_fish.push_back(false);
+                // slide_fish.push_back(false);
+                // slide_fish.push_back(false);
+                // slide_fish.push_back(false);
             
                 int y_pos = -50;
 
@@ -110,22 +111,17 @@ namespace kt {
                 // update goal fish animations
                 if (sliding) {
                     int lerp_amt = 0;
-                    for (int i = 0; i < slide_fish.size(); i++) {
-                        if (slide_fish[i]) {
-                            lerp_amt = lerp(goal_fish_sprs[i][0].position().x().integer(), x_poses[i], 5);
-                            bn::log(bn::to_string<16>(lerp_amt));
-                            goal_fish_sprs[i][0].set_x(goal_fish_sprs[i][0].position().x() + lerp_amt);
-                        }
+                    lerp_amt = lerp(goal_fish_sprs[slide_fish][0].position().x().integer(), x_poses[slide_fish], 5);
+                    for (auto sp : goal_fish_sprs[slide_fish]) {
+                        sp.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
                     }
 
-                    if (lerp_amt == 0) {
-                        for (int j = 0; j < slide_fish.size(); j++) {
-                            if (slide_fish[j]) {
-                                goal_fish_sprs[j][0].set_x(x_poses[j]);
-                                slide_fish[j] = false;
-                            }
-                        }
-                        sliding = false;
+                    if (lerp_amt == 0) { // aren't lerping anymore
+                        slide_fish++;
+                        bn::log(bn::string<16>("slide_fish"));
+                        bn::log(bn::to_string<16>(slide_fish));
+                        if (slide_fish >= goal_fish_sprs.size())
+                            sliding = false;
                     }
                 }
             };
@@ -194,24 +190,13 @@ namespace kt {
                 it->clear();
                 goal_fish_sprs.erase(it);
 
-                // Move other fish down accordingly
-                // TO-DO make this incremental over time so they slide
-                // for (int i = counter; i < 3; i++) {
-                //     bn::log(bn::to_string<16>(i));
-                //     if (goal_fish_sprs.size() > i) {
-                //         for (bn::vector<bn::sprite_ptr, 5>::iterator it_spr = goal_fish_sprs[i].begin(); 
-                //                 it_spr != goal_fish_sprs[i].end(); 
-                //                 it_spr++) {
-                //             it_spr->set_x(it_spr->position().x() + 48);
-                //         }
-                //     }
-                // }
-
-                // WIP sliding them down
-                for (int i = counter; i < 3; i++) {
-                    slide_fish[i] = true;
+                bn::log(bn::string<16>("counter"));
+                bn::log(bn::to_string<16>(counter));
+                bn::log(bn::to_string<16>(fish_configs.size()));
+                if (!fish_configs.empty() && counter < fish_configs.size()) {
+                    slide_fish = counter;
+                    sliding = true;
                 }
-                sliding = true;
 
                 // Add in new fish (if applicable)
                 if (fish_configs.size() >= 4) {
@@ -236,7 +221,7 @@ namespace kt {
             bn::vector<FishConfig, 6> fish_configs;
             bn::vector<bn::vector<bn::sprite_ptr, 5>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
-            bn::vector<bool, 4> slide_fish;
+            int slide_fish;
 
 
             int num_customers;
