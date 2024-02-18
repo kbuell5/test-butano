@@ -17,6 +17,13 @@
 #include "player.h"
 
 namespace kt {
+    int lerp(int a, int b, int fraction) {
+        int ret = (b - a) / fraction;
+        if ((b - a) == 0) return 0;
+        else if (ret != 0) return ret;
+        else return 1;
+    };
+
     class Level {
         public:
             Level(bn::regular_bg_map_item map, bn::vector<FishConfig, 6> fish_con) :
@@ -24,10 +31,15 @@ namespace kt {
                 fish_configs = fish_con;
 
                 // Set up fish sprites at the top of the screen
-                x_poses.push_back(-72);
-                x_poses.push_back(-24);
-                x_poses.push_back(24);
                 x_poses.push_back(72);
+                x_poses.push_back(24);
+                x_poses.push_back(-24);
+                x_poses.push_back(-72);
+
+                slide_fish.push_back(false);
+                slide_fish.push_back(false);
+                slide_fish.push_back(false);
+                slide_fish.push_back(false);
             
                 int y_pos = -50;
 
@@ -92,8 +104,30 @@ namespace kt {
                 }
             };
 
-            void player_kitchen_update() {
+            void kitchen_update() {
                 player.kitchen_update();
+
+                // update goal fish animations
+                if (sliding) {
+                    int lerp_amt = 0;
+                    for (int i = 0; i < slide_fish.size(); i++) {
+                        if (slide_fish[i]) {
+                            lerp_amt = lerp(goal_fish_sprs[i][0].position().x().integer(), x_poses[i], 5);
+                            bn::log(bn::to_string<16>(lerp_amt));
+                            goal_fish_sprs[i][0].set_x(goal_fish_sprs[i][0].position().x() + lerp_amt);
+                        }
+                    }
+
+                    if (lerp_amt == 0) {
+                        for (int j = 0; j < slide_fish.size(); j++) {
+                            if (slide_fish[j]) {
+                                goal_fish_sprs[j][0].set_x(x_poses[j]);
+                                slide_fish[j] = false;
+                            }
+                        }
+                        sliding = false;
+                    }
+                }
             };
 
             void start_level() {
@@ -159,27 +193,30 @@ namespace kt {
                 // Remove all sprites
                 it->clear();
                 goal_fish_sprs.erase(it);
+
                 // Move other fish down accordingly
-                // TODO make this incremental over time so they slide
-                bn::log(bn::string<32>("here possbile"));
+                // TO-DO make this incremental over time so they slide
+                // for (int i = counter; i < 3; i++) {
+                //     bn::log(bn::to_string<16>(i));
+                //     if (goal_fish_sprs.size() > i) {
+                //         for (bn::vector<bn::sprite_ptr, 5>::iterator it_spr = goal_fish_sprs[i].begin(); 
+                //                 it_spr != goal_fish_sprs[i].end(); 
+                //                 it_spr++) {
+                //             it_spr->set_x(it_spr->position().x() + 48);
+                //         }
+                //     }
+                // }
+
+                // WIP sliding them down
                 for (int i = counter; i < 3; i++) {
-                    bn::log(bn::string<32>("markers"));
-                    bn::log(bn::to_string<16>(i));
-                    if (goal_fish_sprs.size() > i) {
-                        for (bn::vector<bn::sprite_ptr, 5>::iterator it_spr = goal_fish_sprs[i].begin(); 
-                                it_spr != goal_fish_sprs[i].end(); 
-                                it_spr++) {
-                            bn::log(bn::string<32>("cratons"));
-                            it_spr->set_x(it_spr->position().x() - 48);
-                        }
-                    }
+                    slide_fish[i] = true;
                 }
-                bn::log(bn::string<32>("or maaybe?"));
+                sliding = true;
+
                 // Add in new fish (if applicable)
                 if (fish_configs.size() >= 4) {
-                    create_fish_spr_from_config(fish_configs[counter], 72, -50);
+                    create_fish_spr_from_config(fish_configs[counter], -72, -50);
                 }
-                bn::log(bn::string<32>("bob marley"));
             };
 
             void show_goal_fish() {
@@ -194,15 +231,16 @@ namespace kt {
         private:
             Player player;
             bool is_started = false;
+            bool sliding = false;
 
             bn::vector<FishConfig, 6> fish_configs;
             bn::vector<bn::vector<bn::sprite_ptr, 5>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
+            bn::vector<bool, 4> slide_fish;
+
 
             int num_customers;
-
             int money;
-
             int fish_spacing = 32;
     };
 }

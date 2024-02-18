@@ -90,7 +90,7 @@ namespace {
                 // if (bn::keypad::b_pressed()) {
                 // }
 
-                test_level.player_kitchen_update();
+                test_level.kitchen_update();
             } else {
                 if (bn::keypad::a_pressed()) {
                     test_level.start_level();
