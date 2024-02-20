@@ -30,25 +30,15 @@ namespace kt {
                         player(Player(map)) {
                 fish_configs = fish_con;
 
-                // Set up fish sprites at the top of the screen
+                // Set up goal fish sprite x positions at the top of the screen
                 x_poses.push_back(72);
                 x_poses.push_back(24);
                 x_poses.push_back(-24);
                 x_poses.push_back(-72);
 
                 slide_fish = 4;
-                // slide_fish.push_back(false);
-                // slide_fish.push_back(false);
-                // slide_fish.push_back(false);
-                // slide_fish.push_back(false);
-            
-                int y_pos = -50;
 
-                bn::blending::set_intensity_alpha(0.0);
-
-                for (int i = 0; i < 4; i++) {
-                    create_fish_spr_from_config(fish_configs[i], x_poses[i], y_pos);
-                }
+                // bn::blending::set_intensity_alpha(0.0);
             };
 
             bool is_level_started() {
@@ -129,6 +119,13 @@ namespace kt {
             void start_level() {
                 is_started = true;
 
+                // Create goal fish sprites and slide them in
+                int y_pos = -50;
+                for (int i = 0; i < 4; i++) {
+                    create_fish_spr_from_config(fish_configs[i], -140, y_pos);
+                }
+                slide_fish = 0;
+                sliding = true;
             };
 
             int sell_fish(FishConfig* it, int counter) {
