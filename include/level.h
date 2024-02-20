@@ -197,7 +197,7 @@ namespace kt {
 
                 // Add in new fish (if applicable)
                 if (fish_configs.size() >= 4) {
-                    create_fish_spr_from_config(fish_configs[counter], -72, -50);
+                    create_fish_spr_from_config(fish_configs[counter], -140, -50);
                 }
             };
 
