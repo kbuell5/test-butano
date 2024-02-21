@@ -6,6 +6,7 @@
 #include "bn_regular_bg_map_item.h"
 #include "bn_sprite_animate_actions.h"
 #include "bn_blending_actions.h"
+#include "bn_utility.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -28,7 +29,10 @@ namespace kt {
         public:
             Level(bn::regular_bg_map_item map, bn::vector<FishConfig, 6> fish_con) :
                         player(Player(map)) {
-                fish_configs = fish_con;
+                // fish_configs = fish_con;
+                for (int i = 0; i < fish_con.size(); i++) {
+                    fish_configs.push_back(bn::make_pair<FishConfig, int>(FishConfig(fish_con[i]), 3));
+                }
 
                 // Set up goal fish sprite x positions at the top of the screen
                 x_poses.push_back(72);
@@ -73,9 +77,9 @@ namespace kt {
                         bn::log(bn::string<32>("selling a fsh mayebe"));
                         // Check if the fish being sold matches any of the 1st 4 goal fish
                         int counter = 0;
-                        for (bn::vector<FishConfig, 6>::iterator it = fish_configs.begin(); it != fish_configs.end(); it++) {
+                        for (bn::vector<bn::pair<FishConfig, int>, 6>::iterator it = fish_configs.begin(); it != fish_configs.end(); it++) {
                             if (counter > 3) break;
-                            if (player.get_fish_to_sell()->get_fish_config() == *it) {
+                            if (player.get_fish_to_sell()->get_fish_config() == it->first) {
                                 bn::log(bn::string<32>("fiund a fish to sell match"));
 
                                 // Sell fish
@@ -122,13 +126,13 @@ namespace kt {
                 // Create goal fish sprites and slide them in
                 int y_pos = -50;
                 for (int i = 0; i < 4; i++) {
-                    create_fish_spr_from_config(fish_configs[i], -140, y_pos);
+                    create_fish_spr_from_config(fish_configs[i].first, -140, y_pos);
                 }
                 slide_fish = 0;
                 sliding = true;
             };
 
-            int sell_fish(FishConfig* it, int counter) {
+            int sell_fish(bn::pair<FishConfig, int>* it, int counter) {
                 fish_configs.erase(it);
                 update_fish_sprs(counter);
                 player.sell_fish();
@@ -197,7 +201,7 @@ namespace kt {
 
                 // Add in new fish (if applicable)
                 if (fish_configs.size() >= 4) {
-                    create_fish_spr_from_config(fish_configs[counter], -140, -50);
+                    create_fish_spr_from_config(fish_configs[counter].first, -140, -50);
                 }
             };
 
@@ -215,7 +219,7 @@ namespace kt {
             bool is_started = false;
             bool sliding = false;
 
-            bn::vector<FishConfig, 6> fish_configs;
+            bn::vector<bn::pair<FishConfig, int>, 16> fish_configs;
             bn::vector<bn::vector<bn::sprite_ptr, 5>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
             int slide_fish;
