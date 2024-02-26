@@ -20,6 +20,22 @@ namespace kt {
         Green
     };
 
+    bn::sprite_item enum_to_sprite_item(FishType type) {
+        if (type == Purple) {
+            return bn::sprite_items::fish_item;
+        } else {
+            return bn::sprite_items::green_fish_item;
+        }
+    };
+
+    int enum_to_int(FishType type) {
+        if (type == Purple) {
+            return 0;
+        } else {
+            return 1;
+        }
+    };
+
     struct FishConfig {
 //          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
 //          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
@@ -41,31 +57,12 @@ namespace kt {
         }
     };
 
-    bn::sprite_item enum_to_sprite_item(FishType type) {
-        if (type == Purple) {
-            return bn::sprite_items::fish_item;
-        } else {
-            return bn::sprite_items::green_fish_item;
-        }
-    };
-
-    int enum_to_int(FishType type) {
-        if (type == Purple) {
-            return 0;
-        } else {
-            return 1;
-        }
-    };
-
     class Fish {
         public:
-            Fish(FishType fish_type) {
+            Fish(FishType fish_type) :
+                        fish_config(FishConfig(0b00000000, fish_type)) {
                 bn::log(bn::string<16>("muffin"));
                 fish_id = fish_id_counter++;
-                fish_config = {
-                    0b00000000,
-                    fish_type
-                };
                 bn::log(bn::string<16>("corn"));
                 switch (fish_type) {
                     case Purple: {
