@@ -25,6 +25,16 @@ namespace kt {
 //          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
         uint8_t config_bool = 0b00000000;
         FishType fish_type;
+        int patience_counter;
+        int patience;
+
+        FishConfig(uint8_t cfg, FishType ft) {
+            config_bool = cfg;
+            fish_type = ft;
+            patience = 3;
+            // starts at a minute, subtracts in intervals of 15 seconds
+            patience_counter = 3600 - (enum_to_int(ft) * 900);
+        }
 
         bool operator==(const FishConfig& other) const {
             return (config_bool == other.config_bool && fish_type == other.fish_type);
@@ -36,6 +46,14 @@ namespace kt {
             return bn::sprite_items::fish_item;
         } else {
             return bn::sprite_items::green_fish_item;
+        }
+    };
+
+    int enum_to_int(FishType type) {
+        if (type == Purple) {
+            return 0;
+        } else {
+            return 1;
         }
     };
 

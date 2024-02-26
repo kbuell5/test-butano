@@ -14,6 +14,8 @@
 #include "bn_sprite_items_green_fish_item.h"
 #include "bn_sprite_items_legs.h"
 #include "bn_sprite_items_fish_makeup.h"
+#include "bn_sprite_items_goal_bubble.h"
+#include "bn_sprite_items_heart_animation.h"
 
 #include "player.h"
 
@@ -144,14 +146,18 @@ namespace kt {
             };
 
             void create_fish_spr_from_config(FishConfig config, int x_pos, int y_pos) {
-                bn::vector<bn::sprite_ptr, 5> curr_fish;
-                bn::sprite_ptr test_fish = bn::sprite_items::legs.create_sprite(x_pos, y_pos);
+                bn::vector<bn::sprite_ptr, 16> curr_fish;
                 bn::log(bn::to_string<16>(x_pos));
                 switch (config.fish_type) {
                     case Purple:
                         {
                             bn::log(bn::string<32>("ourple"));
                             bn::sprite_ptr sprp = bn::sprite_items::fish_item.create_sprite(x_pos, y_pos);
+                            bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
+                            bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13);
+                            bubble.put_below();
+                            curr_fish.push_back(bubble);
+                            curr_fish.push_back(heart);
                             curr_fish.push_back(sprp);
                             break;
                         }
@@ -159,6 +165,11 @@ namespace kt {
                         {
                             bn::log(bn::string<32>("greeb"));
                             bn::sprite_ptr sprg = bn::sprite_items::green_fish_item.create_sprite(x_pos, y_pos);
+                            bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
+                            bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13);
+                            bubble.put_below();
+                            curr_fish.push_back(bubble);
+                            curr_fish.push_back(heart);
                             curr_fish.push_back(sprg);
                             break;
                         }
@@ -182,7 +193,7 @@ namespace kt {
             };
 
             void update_fish_sprs(int counter) {
-                bn::vector<bn::vector<bn::sprite_ptr, 5>, 10>::iterator it = goal_fish_sprs.begin();
+                bn::vector<bn::vector<bn::sprite_ptr, 16>, 10>::iterator it = goal_fish_sprs.begin();
                 for (int i = 0; i < counter; i++) {
                     it++;
                 }
@@ -220,7 +231,7 @@ namespace kt {
             bool sliding = false;
 
             bn::vector<bn::pair<FishConfig, int>, 16> fish_configs;
-            bn::vector<bn::vector<bn::sprite_ptr, 5>, 10> goal_fish_sprs;
+            bn::vector<bn::vector<bn::sprite_ptr, 16>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
             int slide_fish;
 
