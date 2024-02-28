@@ -7,6 +7,7 @@
 #include "bn_sprite_animate_actions.h"
 #include "bn_blending_actions.h"
 #include "bn_utility.h"
+#include "bn_timer.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -70,10 +71,8 @@ namespace kt {
 
             void interact_player() {
                 if (player.interact()) {
-                    bn::log(bn::string<16>("pierogies"));
                     // Check for sell attempt
                     if (player.selling_fish()) {
-                        bn::log(bn::string<32>("selling a fsh mayebe"));
                         // Check if the fish being sold matches any of the 1st 4 goal fish
                         int counter = 0;
                         for (bn::vector<FishConfig, 16>::iterator it = fish_configs.begin(); it != fish_configs.end(); it++) {
@@ -129,6 +128,8 @@ namespace kt {
                             fish_configs[i].patience_counter = fish_configs[i].patience_max;
                             fish_configs[i].patience--;
                             bn::log(bn::string<16>("hewwo?"));
+
+                            if (fish_configs[i].patience == 1) shake_fish(i);
                         } else {
                             heart_anims[i].update();
                         }
@@ -136,11 +137,36 @@ namespace kt {
                         fish_configs[i].patience_counter--;
                     }
                 }
+
+                // shake bubble if need be
+                for (int i = 0; i < goal_fish_sprs.size(); i++) {
+                    if (shake_timers[i] % 10 == 0 && shake_timers[i] < 80 && shake_timers[i] != 0) {
+                        bn::log(bn::string<16>("shaka"));
+                        bn::log(bn::to_string<16>(shake_timers[i]));
+                        shake_timers[i]++;
+
+                        int x_move = 6;
+                        if (goal_fish_sprs[i][0].position().x() > x_poses[i]) x_move = -6;
+
+                        goal_fish_sprs[i][0].set_x(goal_fish_sprs[i][0].position().x() + x_move);
+                    } else if (shake_timers[i] == 80) {
+                        goal_fish_sprs[i][0].set_x(x_poses[i]);
+                        shake_timers[i]++;
+                    } else if (shake_timers[i] < 80) {
+                        shake_timers[i]++;
+                    }
+                    
+                }
                 
             };
 
             void start_level() {
                 is_started = true;
+
+                // create timers
+                for (int i = 0; i < 4; i++) {
+                    shake_timers.push_back(81);
+                }
 
                 // Create goal fish sprites and slide them in
                 int y_pos = -50;
@@ -164,21 +190,18 @@ namespace kt {
 
             void create_fish_spr_from_config(FishConfig config, int x_pos, int y_pos) {
                 bn::vector<bn::sprite_ptr, 16> curr_fish;
-                bn::log(bn::to_string<16>(x_pos));
                 bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
                 bubble.put_below();
                 curr_fish.push_back(bubble);
                 switch (config.fish_type) {
                     case Purple:
                         {
-                            bn::log(bn::string<32>("ourple"));
                             bn::sprite_ptr fish_spr = bn::sprite_items::fish_item.create_sprite(x_pos, y_pos);
                             curr_fish.push_back(fish_spr);
                             break;
                         }
                     case Green:
                         {
-                            bn::log(bn::string<32>("greeb"));
                             bn::sprite_ptr fish_spr = bn::sprite_items::green_fish_item.create_sprite(x_pos, y_pos);
                             curr_fish.push_back(fish_spr);
                             break;
@@ -245,7 +268,14 @@ namespace kt {
 
             void goal_fish_wrong() {
                 
-                
+            };
+
+            void shake_fish(int index) {
+                // change bubble to the red one
+                goal_fish_sprs[index][0].set_tiles(bn::sprite_items::goal_bubble.tiles_item().create_tiles(1));
+                goal_fish_sprs[index][0].set_x(x_poses[index] - 3);
+                shake_timers[index] = 0;
+                // bn::log(bn::to_string<16>(shake_timers[index].elapsed_ticks()));
             };
 
         private:
@@ -257,9 +287,9 @@ namespace kt {
             bn::vector<bn::sprite_animate_action<22>, 16> heart_anims;
             bn::vector<bn::vector<bn::sprite_ptr, 16>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
+            bn::vector<int, 4> shake_timers;
+
             int slide_fish;
-
-
             int num_customers;
             int money;
             int fish_spacing = 32;
