@@ -108,6 +108,8 @@ namespace kt {
                     for (auto sp : goal_fish_sprs[slide_fish]) {
                         sp.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
                     }
+                    bn::sprite_ptr temp_heart = heart_anims[slide_fish].sprite();
+                    temp_heart.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
 
                     if (lerp_amt == 0) { // aren't lerping anymore
                         slide_fish++;
@@ -117,6 +119,24 @@ namespace kt {
                             sliding = false;
                     }
                 }
+
+                // update fish patience
+                for (int i = 0; i < goal_fish_sprs.size(); i++) {
+                    if (fish_configs[i].patience_counter <= 0) {
+                        // Check if the heart animation has finished
+                        // needs to be 8 for whatever reason (imagine index starts at 1?)
+                        if (heart_anims[i].current_graphics_index() % 8 == 0 && heart_anims[i].current_graphics_index() != ((3 - fish_configs[i].patience) * 8)) {
+                            fish_configs[i].patience_counter = fish_configs[i].patience_max;
+                            fish_configs[i].patience--;
+                            bn::log(bn::string<16>("hewwo?"));
+                        } else {
+                            heart_anims[i].update();
+                        }
+                    } else {
+                        fish_configs[i].patience_counter--;
+                    }
+                }
+                
             };
 
             void start_level() {
@@ -145,38 +165,37 @@ namespace kt {
             void create_fish_spr_from_config(FishConfig config, int x_pos, int y_pos) {
                 bn::vector<bn::sprite_ptr, 16> curr_fish;
                 bn::log(bn::to_string<16>(x_pos));
+                bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
+                bubble.put_below();
+                curr_fish.push_back(bubble);
                 switch (config.fish_type) {
                     case Purple:
                         {
                             bn::log(bn::string<32>("ourple"));
-                            bn::sprite_ptr sprp = bn::sprite_items::fish_item.create_sprite(x_pos, y_pos);
-                            bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
-                            bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13);
-                            bubble.put_below();
-                            curr_fish.push_back(bubble);
-                            curr_fish.push_back(heart);
-                            curr_fish.push_back(sprp);
+                            bn::sprite_ptr fish_spr = bn::sprite_items::fish_item.create_sprite(x_pos, y_pos);
+                            curr_fish.push_back(fish_spr);
                             break;
                         }
                     case Green:
                         {
                             bn::log(bn::string<32>("greeb"));
-                            bn::sprite_ptr sprg = bn::sprite_items::green_fish_item.create_sprite(x_pos, y_pos);
-                            bn::sprite_ptr bubble = bn::sprite_items::goal_bubble.create_sprite(x_pos, y_pos);
-                            bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13);
-                            bubble.put_below();
-                            curr_fish.push_back(bubble);
-                            curr_fish.push_back(heart);
-                            curr_fish.push_back(sprg);
+                            bn::sprite_ptr fish_spr = bn::sprite_items::green_fish_item.create_sprite(x_pos, y_pos);
+                            curr_fish.push_back(fish_spr);
                             break;
                         }
                     default:
                         bn::log(bn::string<32>("switch fucked up"));
-                        break;
+                        return;
                 }
 
+                // add heart animation
+                // bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite()
+                bn::sprite_animate_action<22> heart_anim = bn::create_sprite_animate_action_once(bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13), 5, bn::sprite_items::heart_animation.tiles_item(), 
+                                                                                                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21);
+                heart_anims.push_back(heart_anim);
+
                 // Check for upgrades
-                // TODO maybe add the other types but idk
+                // TO-DO maybe add the other types but idk
                 // Legs?
                 if (config.config_bool & (1 << 7)) {
                     bn::sprite_ptr upgrade = bn::sprite_items::legs.create_sprite(x_pos, y_pos);
@@ -198,6 +217,13 @@ namespace kt {
                 // Remove all sprites
                 it->clear();
                 goal_fish_sprs.erase(it);
+
+                // do it again for the heart anims
+                bn::vector<bn::sprite_animate_action<22>, 16>::iterator it2 = heart_anims.begin();
+                for (int i = 0; i < counter; i++) {
+                    it2++;
+                }
+                heart_anims.erase(it2);
 
                 bn::log(bn::string<16>("counter"));
                 bn::log(bn::to_string<16>(counter));
@@ -228,6 +254,7 @@ namespace kt {
             bool sliding = false;
 
             bn::vector<FishConfig, 16> fish_configs;
+            bn::vector<bn::sprite_animate_action<22>, 16> heart_anims;
             bn::vector<bn::vector<bn::sprite_ptr, 16>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
             int slide_fish;
