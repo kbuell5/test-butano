@@ -147,10 +147,19 @@ namespace kt {
 
                 // update run anim if need be
                 if (!run_anims.empty()) {
+                    // fill fish to delete with all done run anims
+                    bn::vector<int, 4> fish_to_delete;
+                    for (auto f : run_anims) {
+                        if (f.second.done()) {
+                            fish_to_delete.push_back(f.first);
+                            bn::log(bn::string<32>("pushed to fish to delete"));
+                            bn::log(bn::format<64>("fish to delete size: {}", fish_to_delete.size()));
+                        }
+                    }
+                    
                     bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4>::iterator it = run_anims.begin();
                     while (it != run_anims.end()) {
                         if (it->second.done()) {
-                            // bn::log(bn::to_string<16>(it->first));
                             // delete fish and slide the rest down
                             bn::vector<FishConfig, 16>::iterator it_cfg = fish_configs.begin();
                             for (int i = 0; i < it->first; i++) {
@@ -159,18 +168,16 @@ namespace kt {
                             
                             bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool, it_cfg->fish_type));
                             fish_configs.erase(it_cfg);
-                            bn::log(bn::string<32>("----- fish configs -----"));
-                            bn::log(bn::to_string<16>(fish_configs.size()));
-                            for (int i = 0; i < fish_configs.size(); i++) {
-                                bn::log(fish_configs[i].to_string());
-                            }
-                            update_fish_sprs(it->first);
                             it = run_anims.erase(it);
 
                             // from it to the end of run_anims, decrement it->first
-                            while (it != run_anims.end()) {
-                                it->first--;
-                                it++;
+                            bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4>::iterator it2;
+                            while (it2 != it) {
+                                it2++;
+                            }
+                            while (it2 != run_anims.end()) {
+                                it2->first--;
+                                it2++;
                             }
                         } else {
                             
@@ -178,7 +185,6 @@ namespace kt {
                             if (!it->second.done()) {
                                 if (it->second.current_graphics_index() == 4 && goal_fish_sprs[it->first][0].position().x() >= -120) {
                                     // move fish offscreen to mimic hiding it
-                                    bn::log(bn::string<16>("000000"));
                                     for (auto sp : goal_fish_sprs[it->first]) {
                                         sp.set_x(-169);
                                     }
@@ -186,8 +192,9 @@ namespace kt {
                             }
                             it++;
                         }
-                        
                     }
+                    if (!fish_to_delete.empty())
+                        update_fish_sprs(fish_to_delete);
                 }
 
                 // update goal fish animations
@@ -228,7 +235,7 @@ namespace kt {
 
             int sell_fish(FishConfig* it, int counter) {
                 fish_configs.erase(it);
-                update_fish_sprs(counter);
+                update_fish_sprs(bn::vector<int, 4>(1, counter));
                 player.sell_fish();
                 return 45;
             };
@@ -261,7 +268,6 @@ namespace kt {
                 }
 
                 // add heart animation
-                // bn::sprite_ptr heart = bn::sprite_items::heart_animation.create_sprite()
                 bn::sprite_animate_action<22> heart_anim = bn::create_sprite_animate_action_once(bn::sprite_items::heart_animation.create_sprite(x_pos, y_pos - 13), 5, bn::sprite_items::heart_animation.tiles_item(), 
                                                                                                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21);
                 heart_anims.push_back(heart_anim);
@@ -280,40 +286,51 @@ namespace kt {
                 goal_fish_sprs.push_back(curr_fish);
             };
 
-            void update_fish_sprs(int counter) {
-                // bn::log(bn::format<32>("currently deleting fish:"));
-                // bn::log(fish_configs[counter].to_string());
-                bn::vector<bn::vector<bn::sprite_ptr, 16>, 10>::iterator it = goal_fish_sprs.begin();
-                for (int i = 0; i < counter; i++) {
-                    it++;
-                }
-                // Found correct fish sprite to delete
-                // Remove all sprites
-                it->clear();
-                goal_fish_sprs.erase(it);
+            void update_fish_sprs(bn::vector<int, 4> counters) {
+                // bn::log(bn::format<32>("deleting a total of {} fish sprs", counters.size()));
+                // for (int c : counters) {
+                //     bn::log(bn::to_string<16>(c));
+                // }
+                bn::vector<int, 4> del_counters = bn::vector<int, 4>(counters);
+                for (int i = 0; i < del_counters.size(); i++) {
+                    bn::vector<bn::vector<bn::sprite_ptr, 16>, 10>::iterator it = goal_fish_sprs.begin();
+                    for (int j = 0; j < del_counters[i]; j++) {
+                        it++;
+                    }
+                    // Found correct fish sprite to delete
+                    // Remove all sprites
+                    it->clear();
+                    goal_fish_sprs.erase(it);
 
-                // do it again for the heart anims
-                bn::vector<bn::sprite_animate_action<22>, 16>::iterator it2 = heart_anims.begin();
-                for (int i = 0; i < counter; i++) {
-                    it2++;
-                }
-                heart_anims.erase(it2);
+                    // do it again for the heart anims
+                    bn::vector<bn::sprite_animate_action<22>, 16>::iterator it2 = heart_anims.begin();
+                    for (int k = 0; k < del_counters[i]; k++) {
+                        it2++;
+                    }
+                    heart_anims.erase(it2);
 
+                    // decrement the rest of del_counters (because of shift)
+                    for (int m = i + 1; m < del_counters.size(); m++) {
+                        del_counters[m]--;
+                    }
+                }
                 // bn::log(bn::string<16>("counter"));
                 // bn::log(bn::to_string<16>(counter));
-                bn::log(bn::to_string<16>(fish_configs.size()));
-                if (!fish_configs.empty() && counter < fish_configs.size()) {
+                // bn::log(bn::to_string<16>(fish_configs.size()));
+                if (!fish_configs.empty() && counters[0] < fish_configs.size()) {
                     if (!sliding) {
-                        slide_fish = counter;
+                        slide_fish = counters[0];
                         bn::log(bn::string<32>("updated slide_fish value"));
                     }
                     sliding = true;
                 }
 
                 // Add in new fish (if applicable)
-                if (fish_configs.size() >= 4) {
-                    bn::log(bn::format<128>("creating fish sprite @ {}, which is {}", counter, fish_configs[counter].to_string()));
-                    create_fish_spr_from_config(fish_configs[counter], -140, -50);
+                for (int counter : counters) {
+                    if (fish_configs.size() >= 4) {
+                        bn::log(bn::format<128>("creating fish sprite @ {}, which is {}", counter, fish_configs[counter].to_string()));
+                        create_fish_spr_from_config(fish_configs[counter], -140, -50);
+                    }
                 }
             };
 
