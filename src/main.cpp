@@ -56,12 +56,12 @@ namespace {
             0b00100000,
             kt::Green
         };
-        fish_configs.push_back(config_1);
-        fish_configs.push_back(config_2);
-        fish_configs.push_back(config_3);
-        fish_configs.push_back(config_4);
-        fish_configs.push_back(config_2);
-        fish_configs.push_back(config_3);
+        fish_configs.push_back(config_1); // plain purple
+        fish_configs.push_back(config_2); // purple with legs
+        fish_configs.push_back(config_3); // green with both
+        fish_configs.push_back(config_4); // green with lips
+        fish_configs.push_back(config_2); // purple with legs
+        fish_configs.push_back(config_3); // green with both
         
         kt::Level test_level(map_item, fish_configs);
 
@@ -87,8 +87,9 @@ namespace {
                     // }
                 }
 
-                // if (bn::keypad::b_pressed()) {
-                // }
+                if (bn::keypad::b_pressed()) {
+                    test_level.print_goal_fish();
+                }
 
                 test_level.kitchen_update();
             } else {

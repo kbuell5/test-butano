@@ -8,6 +8,7 @@
 #include "bn_blending_actions.h"
 #include "bn_utility.h"
 #include "bn_timer.h"
+#include "bn_format.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -17,6 +18,7 @@
 #include "bn_sprite_items_fish_makeup.h"
 #include "bn_sprite_items_goal_bubble.h"
 #include "bn_sprite_items_heart_animation.h"
+#include "bn_sprite_items_run_away_animation.h"
 
 #include "player.h"
 
@@ -100,37 +102,24 @@ namespace kt {
             void kitchen_update() {
                 player.kitchen_update();
 
-                // update goal fish animations
-                if (sliding) {
-                    int lerp_amt = 0;
-                    lerp_amt = lerp(goal_fish_sprs[slide_fish][0].position().x().integer(), x_poses[slide_fish], 5);
-                    for (auto sp : goal_fish_sprs[slide_fish]) {
-                        sp.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
-                    }
-                    bn::sprite_ptr temp_heart = heart_anims[slide_fish].sprite();
-                    temp_heart.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
-
-                    if (lerp_amt == 0) { // aren't lerping anymore
-                        slide_fish++;
-                        bn::log(bn::string<16>("slide_fish"));
-                        bn::log(bn::to_string<16>(slide_fish));
-                        if (slide_fish >= goal_fish_sprs.size())
-                            sliding = false;
-                    }
-                }
-
                 // update fish patience
                 for (int i = 0; i < goal_fish_sprs.size(); i++) {
                     if (fish_configs[i].patience_counter <= 0) {
                         // Check if the heart animation has finished
-                        // needs to be 8 for whatever reason (imagine index starts at 1?)
-                        if (heart_anims[i].current_graphics_index() % 8 == 0 && heart_anims[i].current_graphics_index() != ((3 - fish_configs[i].patience) * 8)) {
+                        if (heart_anims[i].current_index() % 7 == 0 && heart_anims[i].current_index() != ((3 - fish_configs[i].patience) * 8)) {
                             fish_configs[i].patience_counter = fish_configs[i].patience_max;
                             fish_configs[i].patience--;
-                            bn::log(bn::string<16>("hewwo?"));
+                            // bump to next tile
+                            heart_anims[i].update();
+                            heart_anims[i].update();
+                            heart_anims[i].update();
+                            heart_anims[i].update();
+                            heart_anims[i].update();
+                            heart_anims[i].update();
 
                             if (fish_configs[i].patience == 1) shake_fish(i);
-                        } else {
+                            else if (fish_configs[i].patience == 0) fish_run_away(i);
+                        } else if (!heart_anims[i].done()) {
                             heart_anims[i].update();
                         }
                     } else {
@@ -141,8 +130,6 @@ namespace kt {
                 // shake bubble if need be
                 for (int i = 0; i < goal_fish_sprs.size(); i++) {
                     if (shake_timers[i] % 10 == 0 && shake_timers[i] < 80 && shake_timers[i] != 0) {
-                        bn::log(bn::string<16>("shaka"));
-                        bn::log(bn::to_string<16>(shake_timers[i]));
                         shake_timers[i]++;
 
                         int x_move = 6;
@@ -156,6 +143,68 @@ namespace kt {
                         shake_timers[i]++;
                     }
                     
+                }
+
+                // update run anim if need be
+                if (!run_anims.empty()) {
+                    bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4>::iterator it = run_anims.begin();
+                    while (it != run_anims.end()) {
+                        if (it->second.done()) {
+                            // bn::log(bn::to_string<16>(it->first));
+                            // delete fish and slide the rest down
+                            bn::vector<FishConfig, 16>::iterator it_cfg = fish_configs.begin();
+                            for (int i = 0; i < it->first; i++) {
+                                it_cfg++;
+                            }
+                            
+                            bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool, it_cfg->fish_type));
+                            fish_configs.erase(it_cfg);
+                            bn::log(bn::string<32>("----- fish configs -----"));
+                            bn::log(bn::to_string<16>(fish_configs.size()));
+                            for (int i = 0; i < fish_configs.size(); i++) {
+                                bn::log(fish_configs[i].to_string());
+                            }
+                            update_fish_sprs(it->first);
+                            it = run_anims.erase(it);
+
+                            // from it to the end of run_anims, decrement it->first
+                            while (it != run_anims.end()) {
+                                it->first--;
+                                it++;
+                            }
+                        } else {
+                            
+                            it->second.update();
+                            if (!it->second.done()) {
+                                if (it->second.current_graphics_index() == 4 && goal_fish_sprs[it->first][0].position().x() >= -120) {
+                                    // move fish offscreen to mimic hiding it
+                                    bn::log(bn::string<16>("000000"));
+                                    for (auto sp : goal_fish_sprs[it->first]) {
+                                        sp.set_x(-169);
+                                    }
+                                }
+                            }
+                            it++;
+                        }
+                        
+                    }
+                }
+
+                // update goal fish animations
+                if (sliding) {
+                    int lerp_amt = 0;
+                    lerp_amt = lerp(goal_fish_sprs[slide_fish][0].position().x().integer(), x_poses[slide_fish], 5);
+                    for (auto sp : goal_fish_sprs[slide_fish]) {
+                        sp.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
+                    }
+                    bn::sprite_ptr temp_heart = heart_anims[slide_fish].sprite();
+                    temp_heart.set_x(goal_fish_sprs[slide_fish][0].position().x() + lerp_amt);
+
+                    if (lerp_amt == 0) { // aren't lerping anymore
+                        slide_fish++;
+                        if (slide_fish >= goal_fish_sprs.size())
+                            sliding = false;
+                    }
                 }
                 
             };
@@ -232,6 +281,8 @@ namespace kt {
             };
 
             void update_fish_sprs(int counter) {
+                // bn::log(bn::format<32>("currently deleting fish:"));
+                // bn::log(fish_configs[counter].to_string());
                 bn::vector<bn::vector<bn::sprite_ptr, 16>, 10>::iterator it = goal_fish_sprs.begin();
                 for (int i = 0; i < counter; i++) {
                     it++;
@@ -248,16 +299,20 @@ namespace kt {
                 }
                 heart_anims.erase(it2);
 
-                bn::log(bn::string<16>("counter"));
-                bn::log(bn::to_string<16>(counter));
+                // bn::log(bn::string<16>("counter"));
+                // bn::log(bn::to_string<16>(counter));
                 bn::log(bn::to_string<16>(fish_configs.size()));
                 if (!fish_configs.empty() && counter < fish_configs.size()) {
-                    slide_fish = counter;
+                    if (!sliding) {
+                        slide_fish = counter;
+                        bn::log(bn::string<32>("updated slide_fish value"));
+                    }
                     sliding = true;
                 }
 
                 // Add in new fish (if applicable)
                 if (fish_configs.size() >= 4) {
+                    bn::log(bn::format<128>("creating fish sprite @ {}, which is {}", counter, fish_configs[counter].to_string()));
                     create_fish_spr_from_config(fish_configs[counter], -140, -50);
                 }
             };
@@ -275,13 +330,34 @@ namespace kt {
                 goal_fish_sprs[index][0].set_tiles(bn::sprite_items::goal_bubble.tiles_item().create_tiles(1));
                 goal_fish_sprs[index][0].set_x(x_poses[index] - 3);
                 shake_timers[index] = 0;
-                // bn::log(bn::to_string<16>(shake_timers[index].elapsed_ticks()));
+            };
+
+            void fish_run_away(int index) {
+                // start run away animation
+                run_anims.push_back(bn::make_pair<int, bn::sprite_animate_action<8>>(int(index), bn::create_sprite_animate_action_once(bn::sprite_items::run_away_animation.create_sprite(x_poses[index], -50), 7,
+                                    bn::sprite_items::run_away_animation.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7)));
+            };
+
+            void print_goal_fish() {
+                bn::log(bn::string<32>("----- goal fish sprs -----"));
+                bn::log(bn::to_string<16>(goal_fish_sprs.size()));
+                for (int i = 0; i < goal_fish_sprs.size(); i++) {
+                    bn::log(bn::to_string<16>(goal_fish_sprs[i][0].position().x()));
+                    // bn::log(bn::to_string<16>(goal_fish_sprs[i][0].))
+                }
+                bn::log(bn::string<32>("----- fish configs -----"));
+                bn::log(bn::to_string<16>(fish_configs.size()));
+                for (int i = 0; i < fish_configs.size(); i++) {
+                    bn::log(fish_configs[i].to_string());
+                }
             };
 
         private:
             Player player;
             bool is_started = false;
             bool sliding = false;
+
+            bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4> run_anims;
 
             bn::vector<FishConfig, 16> fish_configs;
             bn::vector<bn::sprite_animate_action<22>, 16> heart_anims;

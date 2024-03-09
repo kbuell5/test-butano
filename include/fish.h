@@ -50,12 +50,16 @@ namespace kt {
             fish_type = ft;
             patience = 3;
             // starts at a minute, subtracts in intervals of 15 seconds
-            patience_max = 3600 - (enum_to_int(ft) * 900);
+            patience_max = 1300 - (enum_to_int(ft) * 900);
             patience_counter = patience_max;
         }
 
         bool operator==(const FishConfig& other) const {
             return (config_bool == other.config_bool && fish_type == other.fish_type);
+        }
+
+        bn::string<128> to_string() {
+            return bn::format<128>("~FishConfig~\nconfig_bool: {}\nfish_type: {}\npatience: {}\n~~~~~~~~~~", config_bool, fish_type, patience);
         }
     };
 
