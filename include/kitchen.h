@@ -199,15 +199,9 @@ namespace kt {
                     interactables[i].pie_anim.update();
                     interactables[i].pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
                 }
-                bn::log(bn::string<64>("dfgdfg: "));
                 held_item.swap(interactables[i].fish);
-                bn::log(bn::string<64>("eeeee: "));
-                bn::log(bn::string<64>("new address for held_item: "));
-                // bn::log(bn::to_string<32>(*held_item));
                 // Update flags of current cell
                 interactables[i].has_fish = false;
-                bn::log(bn::string<64>("maybe we fucked up: "));
-                // bn::log(bn::to_string<32>(*held_item));
 
                 held_item->put_fish_above();
                 bn::log(bn::string<32>("successful pick up"));

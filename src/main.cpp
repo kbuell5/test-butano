@@ -28,10 +28,10 @@
 
 namespace {
     void test_startup_scene() {
-        // bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
-        // debug_text.set_left_alignment();
-        // bn::vector<bn::sprite_ptr, 32> text_sprites;
-        // debug_text.generate(-50, -75, "Money: 0", text_sprites);
+        bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
+        debug_text.set_left_alignment();
+        bn::vector<bn::sprite_ptr, 32> text_sprites;
+        debug_text.generate(-20, -75, "Money: 0", text_sprites);
 
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
@@ -79,12 +79,11 @@ namespace {
                 }
 
                 if (bn::keypad::a_pressed()) {
-                    // int maybe_money = 
-                    test_level.interact_player();
-                    // if (maybe_money != 0) {
-                    //     text_sprites.clear();
-                    //     debug_text.generate(-50, -75, bn::string<32>("Money: ") + bn::to_string<16>(maybe_money), text_sprites);
-                    // }
+                    int maybe_money = test_level.interact_player();
+                    if (maybe_money != 0) {
+                        text_sprites.clear();
+                        debug_text.generate(-20, -75, bn::format<32>("Money: {}", maybe_money), text_sprites);
+                    }
                 }
 
                 if (bn::keypad::b_pressed()) {
@@ -98,7 +97,6 @@ namespace {
                 }
             }
             
-            // info.update();
             bn::core::update();
         }
     }

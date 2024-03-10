@@ -44,6 +44,7 @@ namespace kt {
         int patience_counter;
         int patience_max;
         int patience;
+        bool sell_in_progress;
 
         FishConfig(uint8_t cfg, FishType ft) {
             config_bool = cfg;
@@ -52,6 +53,7 @@ namespace kt {
             // starts at a minute, subtracts in intervals of 15 seconds
             patience_max = 1300 - (enum_to_int(ft) * 900);
             patience_counter = patience_max;
+            sell_in_progress = false;
         }
 
         bool operator==(const FishConfig& other) const {
