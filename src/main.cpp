@@ -63,7 +63,7 @@ namespace {
         fish_configs.push_back(config_2); // purple with legs
         fish_configs.push_back(config_3); // green with both
         
-        kt::Level test_level(map_item, fish_configs);
+        kt::Level test_level(map_item, fish_configs, 5);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {

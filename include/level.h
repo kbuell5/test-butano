@@ -9,6 +9,7 @@
 #include "bn_utility.h"
 #include "bn_timer.h"
 #include "bn_format.h"
+#include "bn_random.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -20,6 +21,7 @@
 #include "bn_sprite_items_heart_animation.h"
 #include "bn_sprite_items_run_away_animation.h"
 #include "bn_sprite_items_sell_animation.h"
+#include "bn_sprite_items_customers.h"
 
 #include "player.h"
 
@@ -31,9 +33,21 @@ namespace kt {
         else return 1;
     };
 
+    struct Customer {
+        int bounce_index = 0;
+        bool is_bouncing = false;
+        bn::pair<int, int> pos;
+        bn::sprite_ptr spr;
+
+        Customer(int x_pos, int y_pos, int random_idx) :
+                    spr(bn::sprite_items::customers.create_sprite(x_pos, y_pos, random_idx)) {
+            pos = bn::make_pair<int, int>(int(x_pos), int(y_pos));
+        };
+    };
+
     class Level {
         public:
-            Level(bn::regular_bg_map_item map, bn::vector<FishConfig, 6> fish_con) :
+            Level(bn::regular_bg_map_item map, bn::vector<FishConfig, 6> fish_con, int number_customers) :
                         player(Player(map)) {
                 fish_configs = fish_con;
 
@@ -43,7 +57,48 @@ namespace kt {
                 x_poses.push_back(-24);
                 x_poses.push_back(-72);
 
+                // Set up customer standing y positions
+                cust_y_poses.push_back(-32);
+                cust_y_poses.push_back(-16);
+                cust_y_poses.push_back(0);
+                cust_y_poses.push_back(16);
+                cust_y_poses.push_back(32);
+
+                // Set up customers (evens: x = 120, odds: x = 130)
+                // TODO maybe make this decl and the x_poses one above a one-liner
+                num_customers = number_customers;
+                // for (int i = 0; i < num_customers; i++) {
+                //     int spr_index = rand.get_int(3);
+                //     bn::log(bn::to_string<16>(125 + (5 * ((i > 0) - (i < 0)))));
+                //     customers.push_back(Customer(125 + (5 * ((i > 0) - (i < 0))), -90, spr_index));
+                // }
+                // customers.push_back(Customer(120, -90, 0));
+                // customers.push_back(Customer(130, -90, 1));
+                // customers.push_back(Customer(120, -90, 2));
+                // customers.push_back(Customer(130, -90, 3));
+                // customers.push_back(Customer(120, -90, 4));
+
+                // Set up customer offsets
+                // i hate this so much
+                cust_offsets.push_back(bn::make_pair<int, int>(1, 2));
+                cust_offsets.push_back(bn::make_pair<int, int>(1, 1));
+                cust_offsets.push_back(bn::make_pair<int, int>(2, 1));
+                cust_offsets.push_back(bn::make_pair<int, int>(2, -1));
+                cust_offsets.push_back(bn::make_pair<int, int>(1, -1));
+                cust_offsets.push_back(bn::make_pair<int, int>(1, -3));
+                cust_offsets.push_back(bn::make_pair<int, int>(1, -7));
+                cust_offsets.push_back(bn::make_pair<int, int>(1, -8));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, 2));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, 1));
+                cust_offsets.push_back(bn::make_pair<int, int>(-2, 1));
+                cust_offsets.push_back(bn::make_pair<int, int>(-2, -1));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, -1));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, -3));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, -7));
+                cust_offsets.push_back(bn::make_pair<int, int>(-1, -8));
+
                 slide_fish = 4;
+                slide_customer = 4;
 
                 // bn::blending::set_intensity_alpha(0.0);
             };
@@ -215,7 +270,19 @@ namespace kt {
                             sliding = false;
                     }
                 }
-                
+
+                // update customer sliding (should only happen at the beginning of a level)
+                if (cust_sliding) {
+                    int lerp_amt = 0;
+                    lerp_amt = lerp(customers[slide_customer].spr.position().y().integer(), cust_y_poses[slide_customer], 5);
+                    customers[slide_customer].spr.set_y(customers[slide_customer].spr.position().y() + lerp_amt);
+
+                    if (lerp_amt == 0) {
+                        slide_customer++;
+                        if (slide_customer >= customers.size())
+                            cust_sliding = false;
+                    }
+                }
             };
 
             void start_level() {
@@ -233,6 +300,13 @@ namespace kt {
                 }
                 slide_fish = 0;
                 sliding = true;
+
+                // Create customers and slide them in
+                for (int i = 0; i < num_customers; i++) {
+                    create_customer(i);
+                }
+                slide_customer = 0;
+                cust_sliding = true;
             };
 
             int sell_fish(int index) {
@@ -341,6 +415,12 @@ namespace kt {
                 }
             };
 
+            void create_customer(int i) {
+                int spr_index = rand.get_int(3);
+                bn::log(bn::to_string<16>(80 + (10 * (i % 2))));
+                customers.push_back(Customer(100 + (10 * (i % 2)), -120, spr_index));
+            };
+
             void show_goal_fish() {
 
             };
@@ -380,6 +460,7 @@ namespace kt {
             Player player;
             bool is_started = false;
             bool sliding = false;
+            bool cust_sliding = false;
 
             bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4> disappear_anims;
 
@@ -388,8 +469,14 @@ namespace kt {
             bn::vector<bn::vector<bn::sprite_ptr, 16>, 10> goal_fish_sprs;
             bn::vector<int, 4> x_poses;
             bn::vector<int, 4> shake_timers;
+            bn::vector<int, 5> cust_y_poses;
+            bn::vector<Customer, 25> customers;
+            bn::vector<bn::pair<int, int>, 16> cust_offsets;
+
+            bn::random rand;
 
             int slide_fish;
+            int slide_customer;
             int num_customers;
             int money;
             int fish_spacing = 32;

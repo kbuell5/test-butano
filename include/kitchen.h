@@ -20,7 +20,7 @@ namespace kt {
         Butterfly,
         Timer,
         Makeup,
-        Customer,
+        SalesCounter,
         GreenFishTank
     };
 
@@ -90,7 +90,7 @@ namespace kt {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
 
-                interactables.push_back(Interactable(true, false, Customer, 40, 24));
+                interactables.push_back(Interactable(true, false, SalesCounter, 40, 24));
                 for (i = 25; i <= 28; i++) {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
@@ -237,7 +237,7 @@ namespace kt {
 
                 uint8_t ret = 0b00000000;
                 // If looking at customer (sell point)
-                if (interactables[i].type == Customer) {
+                if (interactables[i].type == SalesCounter) {
                     bn::log(bn::string<32>("attempting to sell fihs"));
                     try_sell = true;
 
