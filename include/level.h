@@ -36,12 +36,10 @@ namespace kt {
     struct Customer {
         int bounce_index = 0;
         int direction;
-        bn::pair<int, int> pos;
         bn::sprite_ptr spr;
 
         Customer(int x_pos, int y_pos, int random_idx, int num) :
                     spr(bn::sprite_items::customers.create_sprite(x_pos, y_pos, random_idx)) {
-            pos = bn::make_pair<int, int>(int(x_pos), int(y_pos));
             if (num % 2 == 0) direction = 1;
             else direction = -1;
         };
