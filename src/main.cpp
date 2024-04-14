@@ -60,7 +60,7 @@ namespace {
         fish_configs.push_back(config_2); // purple with legs
         fish_configs.push_back(config_3); // green with both
         fish_configs.push_back(config_4); // green with lips
-        fish_configs.push_back(config_2); // purple with legs
+        // fish_configs.push_back(config_2); // purple with legs
         fish_configs.push_back(config_3); // green with both
         
         kt::Level test_level(map_item, fish_configs, 5);

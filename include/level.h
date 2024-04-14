@@ -35,13 +35,15 @@ namespace kt {
 
     struct Customer {
         int bounce_index = 0;
-        bool is_bouncing = false;
+        int direction;
         bn::pair<int, int> pos;
         bn::sprite_ptr spr;
 
-        Customer(int x_pos, int y_pos, int random_idx) :
+        Customer(int x_pos, int y_pos, int random_idx, int num) :
                     spr(bn::sprite_items::customers.create_sprite(x_pos, y_pos, random_idx)) {
             pos = bn::make_pair<int, int>(int(x_pos), int(y_pos));
+            if (num % 2 == 0) direction = 1;
+            else direction = -1;
         };
     };
 
@@ -58,11 +60,11 @@ namespace kt {
                 x_poses.push_back(-72);
 
                 // Set up customer standing y positions
-                cust_y_poses.push_back(-32);
-                cust_y_poses.push_back(-16);
-                cust_y_poses.push_back(0);
-                cust_y_poses.push_back(16);
                 cust_y_poses.push_back(32);
+                cust_y_poses.push_back(16);
+                cust_y_poses.push_back(0);
+                cust_y_poses.push_back(-16);
+                cust_y_poses.push_back(-32);
 
                 // Set up customers (evens: x = 120, odds: x = 130)
                 // TODO maybe make this decl and the x_poses one above a one-liner
@@ -80,25 +82,25 @@ namespace kt {
 
                 // Set up customer offsets
                 // i hate this so much
-                cust_offsets.push_back(bn::make_pair<int, int>(1, 2));
-                cust_offsets.push_back(bn::make_pair<int, int>(1, 1));
-                cust_offsets.push_back(bn::make_pair<int, int>(2, 1));
-                cust_offsets.push_back(bn::make_pair<int, int>(2, -1));
-                cust_offsets.push_back(bn::make_pair<int, int>(1, -1));
-                cust_offsets.push_back(bn::make_pair<int, int>(1, -3));
-                cust_offsets.push_back(bn::make_pair<int, int>(1, -7));
-                cust_offsets.push_back(bn::make_pair<int, int>(1, -8));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, 2));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, 1));
-                cust_offsets.push_back(bn::make_pair<int, int>(-2, 1));
-                cust_offsets.push_back(bn::make_pair<int, int>(-2, -1));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, -1));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, -3));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, -7));
-                cust_offsets.push_back(bn::make_pair<int, int>(-1, -8));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, -2));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, -1));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(2, -1));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(2, 1));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, 1));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, 3));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, 7));
+                cust_offsets_forward.push_back(bn::make_pair<int, int>(1, 8));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, -2));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, -1));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-2, -1));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-2, 1));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, 1));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, 3));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, 7));
+                cust_offsets_backward.push_back(bn::make_pair<int, int>(-1, 8));
 
                 slide_fish = 4;
-                slide_customer = 4;
+                slide_customer = num_customers + 1;
 
                 // bn::blending::set_intensity_alpha(0.0);
             };
@@ -274,13 +276,51 @@ namespace kt {
                 // update customer sliding (should only happen at the beginning of a level)
                 if (cust_sliding) {
                     int lerp_amt = 0;
-                    lerp_amt = lerp(customers[slide_customer].spr.position().y().integer(), cust_y_poses[slide_customer], 5);
+                    lerp_amt = lerp(customers[slide_customer].spr.position().y().integer(), cust_y_poses[slide_customer], 8);
                     customers[slide_customer].spr.set_y(customers[slide_customer].spr.position().y() + lerp_amt);
 
                     if (lerp_amt == 0) {
+                        bn::log(bn::string<32>("finished sliding customer:"));
+                        bn::log(bn::to_string<16>(slide_customer));
                         slide_customer++;
                         if (slide_customer >= customers.size())
                             cust_sliding = false;
+                    }
+                }
+
+                // update customer leaving
+                if (cust_leaving) {
+                    int lerp_amt = 0;
+                    lerp_amt = lerp(customers[0].spr.position().y().integer(), 150, 5);
+                    customers[0].spr.set_y(customers[0].spr.position().y() + lerp_amt);
+
+                    if (lerp_amt == 0) {
+                        cust_leaving = false;
+                        num_customers--;
+                        customers.erase(customers.cbegin());
+                        cust_bouncing = true;
+                    }
+                }
+
+                // update customer bouncing
+                if (cust_bouncing) {
+                    bn::log(bn::string<15>("hurhuhu"));
+                    for (int i = 0; i < num_customers; i++) {
+                        bn::log(bn::string<15>("penis"));
+                        if (customers[i].direction == 1)
+                            customers[i].spr.set_position(customers[i].spr.position().x() + cust_offsets_forward[customers[i].bounce_index].first, customers[i].spr.position().y() + cust_offsets_forward[customers[i].bounce_index].second);
+                        else
+                            customers[i].spr.set_position(customers[i].spr.position().x() + cust_offsets_backward[customers[i].bounce_index].first, customers[i].spr.position().y() + cust_offsets_backward[customers[i].bounce_index].second);
+                        customers[i].bounce_index++;
+
+                        if (customers[i].bounce_index >= cust_offsets_forward.size()) {
+                            customers[i].bounce_index = 0;
+                            customers[i].direction *= -1;
+
+                            if (i == num_customers - 1) {
+                                cust_bouncing = false;
+                            }
+                        }
                     }
                 }
             };
@@ -315,6 +355,7 @@ namespace kt {
                 disappear_anims.push_back(bn::make_pair<int, bn::sprite_animate_action<8>>(int(index), bn::create_sprite_animate_action_once(bn::sprite_items::sell_animation.create_sprite(x_poses[index], -50), 7,
                     bn::sprite_items::sell_animation.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7)));
                 fish_configs[index].sell_in_progress = true;
+                cust_leaving = true;
                 player.sell_fish();
                 return 45;
             };
@@ -417,16 +458,9 @@ namespace kt {
 
             void create_customer(int i) {
                 int spr_index = rand.get_int(3);
+                bn::log(bn::format<32>("randomly picked {}", spr_index));
                 bn::log(bn::to_string<16>(80 + (10 * (i % 2))));
-                customers.push_back(Customer(100 + (10 * (i % 2)), -120, spr_index));
-            };
-
-            void show_goal_fish() {
-
-            };
-
-            void goal_fish_wrong() {
-                
+                customers.push_back(Customer(100 + (10 * (i % 2)), -120, spr_index, i));
             };
 
             void shake_fish(int index) {
@@ -461,6 +495,8 @@ namespace kt {
             bool is_started = false;
             bool sliding = false;
             bool cust_sliding = false;
+            bool cust_leaving = false;
+            bool cust_bouncing = false;
 
             bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4> disappear_anims;
 
@@ -471,7 +507,8 @@ namespace kt {
             bn::vector<int, 4> shake_timers;
             bn::vector<int, 5> cust_y_poses;
             bn::vector<Customer, 25> customers;
-            bn::vector<bn::pair<int, int>, 16> cust_offsets;
+            bn::vector<bn::pair<int, int>, 8> cust_offsets_forward;
+            bn::vector<bn::pair<int, int>, 8> cust_offsets_backward;
 
             bn::random rand;
 

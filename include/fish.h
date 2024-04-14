@@ -51,7 +51,7 @@ namespace kt {
             fish_type = ft;
             patience = 3;
             // starts at a minute, subtracts in intervals of 15 seconds
-            patience_max = 1300 - (enum_to_int(ft) * 900);
+            patience_max = 3600 - (enum_to_int(ft) * 900);
             patience_counter = patience_max;
             sell_in_progress = false;
         }
