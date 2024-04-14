@@ -67,18 +67,7 @@ namespace kt {
                 cust_y_poses.push_back(-32);
 
                 // Set up customers (evens: x = 120, odds: x = 130)
-                // TODO maybe make this decl and the x_poses one above a one-liner
                 num_customers = number_customers;
-                // for (int i = 0; i < num_customers; i++) {
-                //     int spr_index = rand.get_int(3);
-                //     bn::log(bn::to_string<16>(125 + (5 * ((i > 0) - (i < 0)))));
-                //     customers.push_back(Customer(125 + (5 * ((i > 0) - (i < 0))), -90, spr_index));
-                // }
-                // customers.push_back(Customer(120, -90, 0));
-                // customers.push_back(Customer(130, -90, 1));
-                // customers.push_back(Customer(120, -90, 2));
-                // customers.push_back(Customer(130, -90, 3));
-                // customers.push_back(Customer(120, -90, 4));
 
                 // Set up customer offsets
                 // i hate this so much
@@ -101,8 +90,6 @@ namespace kt {
 
                 slide_fish = 4;
                 slide_customer = num_customers + 1;
-
-                // bn::blending::set_intensity_alpha(0.0);
             };
 
             bool is_level_started() {
@@ -280,8 +267,6 @@ namespace kt {
                     customers[slide_customer].spr.set_y(customers[slide_customer].spr.position().y() + lerp_amt);
 
                     if (lerp_amt == 0) {
-                        bn::log(bn::string<32>("finished sliding customer:"));
-                        bn::log(bn::to_string<16>(slide_customer));
                         slide_customer++;
                         if (slide_customer >= customers.size())
                             cust_sliding = false;
@@ -304,9 +289,7 @@ namespace kt {
 
                 // update customer bouncing
                 if (cust_bouncing) {
-                    bn::log(bn::string<15>("hurhuhu"));
                     for (int i = 0; i < num_customers; i++) {
-                        bn::log(bn::string<15>("penis"));
                         if (customers[i].direction == 1)
                             customers[i].spr.set_position(customers[i].spr.position().x() + cust_offsets_forward[customers[i].bounce_index].first, customers[i].spr.position().y() + cust_offsets_forward[customers[i].bounce_index].second);
                         else
@@ -350,8 +333,6 @@ namespace kt {
             };
 
             int sell_fish(int index) {
-                // fish_configs.erase(it);
-                // update_fish_sprs(bn::vector<int, 4>(1, counter));
                 disappear_anims.push_back(bn::make_pair<int, bn::sprite_animate_action<8>>(int(index), bn::create_sprite_animate_action_once(bn::sprite_items::sell_animation.create_sprite(x_poses[index], -50), 7,
                     bn::sprite_items::sell_animation.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7)));
                 fish_configs[index].sell_in_progress = true;
@@ -409,10 +390,6 @@ namespace kt {
             };
 
             void update_fish_sprs(bn::vector<int, 4> counters) {
-                // bn::log(bn::format<32>("deleting a total of {} fish sprs", counters.size()));
-                // for (int c : counters) {
-                //     bn::log(bn::to_string<16>(c));
-                // }
                 bn::vector<int, 4> del_counters = bn::vector<int, 4>(counters);
                 for (int i = 0; i < del_counters.size(); i++) {
                     bn::vector<bn::vector<bn::sprite_ptr, 16>, 10>::iterator it = goal_fish_sprs.begin();
@@ -436,13 +413,9 @@ namespace kt {
                         del_counters[m]--;
                     }
                 }
-                // bn::log(bn::string<16>("counter"));
-                // bn::log(bn::to_string<16>(counter));
-                // bn::log(bn::to_string<16>(fish_configs.size()));
                 if (!fish_configs.empty() && counters[0] < fish_configs.size()) {
                     if (!sliding) {
                         slide_fish = counters[0];
-                        bn::log(bn::string<32>("updated slide_fish value"));
                     }
                     sliding = true;
                 }
@@ -458,8 +431,6 @@ namespace kt {
 
             void create_customer(int i) {
                 int spr_index = rand.get_int(3);
-                bn::log(bn::format<32>("randomly picked {}", spr_index));
-                bn::log(bn::to_string<16>(80 + (10 * (i % 2))));
                 customers.push_back(Customer(100 + (10 * (i % 2)), -120, spr_index, i));
             };
 

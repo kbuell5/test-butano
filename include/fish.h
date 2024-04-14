@@ -69,9 +69,7 @@ namespace kt {
         public:
             Fish(FishType fish_type) :
                         fish_config(FishConfig(0b00000000, fish_type)) {
-                bn::log(bn::string<16>("muffin"));
                 fish_id = fish_id_counter++;
-                bn::log(bn::string<16>("corn"));
                 switch (fish_type) {
                     case Purple: {
                         bn::sprite_ptr fish_spr = bn::sprite_items::fish_item.create_sprite(0, 0);
@@ -87,7 +85,6 @@ namespace kt {
                         bn::log(bn::string<32>("we messed up somehow"));
                     }
                 }
-                bn::log(bn::string<16>("gee"));
             };
 
             Fish(const Fish& other) = default;
@@ -142,7 +139,6 @@ namespace kt {
             void give_makeup() {
                 fish_config.config_bool |= 0b00100000;
                 fish_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
-                bn::log(bn::string<16>("woooo"));
             };
 
             void give_sparkles() {

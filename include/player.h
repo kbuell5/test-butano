@@ -42,8 +42,6 @@ namespace kt {
                 hitbox_tl = bn::point(start_pt - 5, start_pt + 1);
                 hitbox_tr = bn::point(start_pt + 5, start_pt + 1);
                 dir = Down;
-
-                // kitchen = Kitchen(map);
             };
 
             bool move_left() {
