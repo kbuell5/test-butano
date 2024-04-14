@@ -28,10 +28,10 @@
 
 namespace {
     void test_startup_scene() {
-        // bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
-        // debug_text.set_left_alignment();
-        // bn::vector<bn::sprite_ptr, 32> text_sprites;
-        // debug_text.generate(-50, -75, "Money: 0", text_sprites);
+        bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
+        debug_text.set_left_alignment();
+        bn::vector<bn::sprite_ptr, 32> text_sprites;
+        debug_text.generate(-20, -75, "Money: 0", text_sprites);
 
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
@@ -56,14 +56,14 @@ namespace {
             0b00100000,
             kt::Green
         };
-        fish_configs.push_back(config_1);
-        fish_configs.push_back(config_2);
-        fish_configs.push_back(config_3);
-        fish_configs.push_back(config_4);
-        fish_configs.push_back(config_2);
-        fish_configs.push_back(config_3);
+        fish_configs.push_back(config_1); // plain purple
+        fish_configs.push_back(config_2); // purple with legs
+        fish_configs.push_back(config_3); // green with both
+        fish_configs.push_back(config_4); // green with lips
+        // fish_configs.push_back(config_2); // purple with legs
+        fish_configs.push_back(config_3); // green with both
         
-        kt::Level test_level(map_item, fish_configs);
+        kt::Level test_level(map_item, fish_configs, 5);
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
@@ -79,25 +79,24 @@ namespace {
                 }
 
                 if (bn::keypad::a_pressed()) {
-                    // int maybe_money = 
-                    test_level.interact_player();
-                    // if (maybe_money != 0) {
-                    //     text_sprites.clear();
-                    //     debug_text.generate(-50, -75, bn::string<32>("Money: ") + bn::to_string<16>(maybe_money), text_sprites);
-                    // }
+                    int maybe_money = test_level.interact_player();
+                    if (maybe_money != 0) {
+                        text_sprites.clear();
+                        debug_text.generate(-20, -75, bn::format<32>("Money: {}", maybe_money), text_sprites);
+                    }
                 }
 
-                // if (bn::keypad::b_pressed()) {
-                // }
+                if (bn::keypad::b_pressed()) {
+                    test_level.print_goal_fish();
+                }
 
-                test_level.player_kitchen_update();
+                test_level.kitchen_update();
             } else {
                 if (bn::keypad::a_pressed()) {
                     test_level.start_level();
                 }
             }
             
-            // info.update();
             bn::core::update();
         }
     }

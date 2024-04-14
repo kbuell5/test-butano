@@ -20,7 +20,7 @@ namespace kt {
         Butterfly,
         Timer,
         Makeup,
-        Customer,
+        SalesCounter,
         GreenFishTank
     };
 
@@ -90,8 +90,8 @@ namespace kt {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
 
-                interactables.push_back(Interactable(true, false, Customer, 40, 24));
-                for (i = 28; i <= 28; i++) {
+                interactables.push_back(Interactable(true, false, SalesCounter, 40, 24));
+                for (i = 25; i <= 28; i++) {
                     interactables.back().tile_indices.push_back(bn::regular_bg_map_cell_info(map_item.cell(i, 0)).tile_index());
                 }
                 
@@ -199,15 +199,9 @@ namespace kt {
                     interactables[i].pie_anim.update();
                     interactables[i].pie_chart_ptr.set_tiles(bn::sprite_items::piechart.tiles_item().create_tiles(0));
                 }
-                bn::log(bn::string<64>("dfgdfg: "));
                 held_item.swap(interactables[i].fish);
-                bn::log(bn::string<64>("eeeee: "));
-                bn::log(bn::string<64>("new address for held_item: "));
-                // bn::log(bn::to_string<32>(*held_item));
                 // Update flags of current cell
                 interactables[i].has_fish = false;
-                bn::log(bn::string<64>("maybe we fucked up: "));
-                // bn::log(bn::to_string<32>(*held_item));
 
                 held_item->put_fish_above();
                 bn::log(bn::string<32>("successful pick up"));
@@ -243,7 +237,7 @@ namespace kt {
 
                 uint8_t ret = 0b00000000;
                 // If looking at customer (sell point)
-                if (interactables[i].type == Customer) {
+                if (interactables[i].type == SalesCounter) {
                     bn::log(bn::string<32>("attempting to sell fihs"));
                     try_sell = true;
 

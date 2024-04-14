@@ -20,17 +20,6 @@ namespace kt {
         Green
     };
 
-    struct FishConfig {
-//          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
-//          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
-        uint8_t config_bool = 0b00000000;
-        FishType fish_type;
-
-        bool operator==(const FishConfig& other) const {
-            return (config_bool == other.config_bool && fish_type == other.fish_type);
-        }
-    };
-
     bn::sprite_item enum_to_sprite_item(FishType type) {
         if (type == Purple) {
             return bn::sprite_items::fish_item;
@@ -39,16 +28,48 @@ namespace kt {
         }
     };
 
+    int enum_to_int(FishType type) {
+        if (type == Purple) {
+            return 0;
+        } else {
+            return 1;
+        }
+    };
+
+    struct FishConfig {
+//          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
+//          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
+        uint8_t config_bool = 0b00000000;
+        FishType fish_type;
+        int patience_counter;
+        int patience_max;
+        int patience;
+        bool sell_in_progress;
+
+        FishConfig(uint8_t cfg, FishType ft) {
+            config_bool = cfg;
+            fish_type = ft;
+            patience = 3;
+            // starts at a minute, subtracts in intervals of 15 seconds
+            patience_max = 3600 - (enum_to_int(ft) * 900);
+            patience_counter = patience_max;
+            sell_in_progress = false;
+        }
+
+        bool operator==(const FishConfig& other) const {
+            return (config_bool == other.config_bool && fish_type == other.fish_type);
+        }
+
+        bn::string<128> to_string() {
+            return bn::format<128>("~FishConfig~\nconfig_bool: {}\nfish_type: {}\npatience: {}\n~~~~~~~~~~", config_bool, fish_type, patience);
+        }
+    };
+
     class Fish {
         public:
-            Fish(FishType fish_type) {
-                bn::log(bn::string<16>("muffin"));
+            Fish(FishType fish_type) :
+                        fish_config(FishConfig(0b00000000, fish_type)) {
                 fish_id = fish_id_counter++;
-                fish_config = {
-                    0b00000000,
-                    fish_type
-                };
-                bn::log(bn::string<16>("corn"));
                 switch (fish_type) {
                     case Purple: {
                         bn::sprite_ptr fish_spr = bn::sprite_items::fish_item.create_sprite(0, 0);
@@ -64,7 +85,6 @@ namespace kt {
                         bn::log(bn::string<32>("we messed up somehow"));
                     }
                 }
-                bn::log(bn::string<16>("gee"));
             };
 
             Fish(const Fish& other) = default;
@@ -119,7 +139,6 @@ namespace kt {
             void give_makeup() {
                 fish_config.config_bool |= 0b00100000;
                 fish_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
-                bn::log(bn::string<16>("woooo"));
             };
 
             void give_sparkles() {
