@@ -462,9 +462,9 @@ namespace kt {
                 }
             };
 
-            void spawn_dialogue(bn::vector<bn::pair<bn::string_view, bn::string_view>, 24> dialogue) {
+            void spawn_dialogue(const bn::string_view dialogue[][2]) {
                 bn::log(bn::string<32>("spawning dialogue"));
-                dia.set_map(dialogue);
+                // dia.set_map(dialogue);
                 // dia.toggle_dialogue();
                 // dia.start_dialogue();
                 // TODO make a demo dialogue cutscene reel

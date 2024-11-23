@@ -29,9 +29,9 @@
 
 namespace {
     // TODO johan wanted the dialogue samples up here, find out why
-    constexpr bn::string_view dialogue_sample[] = { "I can't wait to begin my journey with you! This is a long dialogue. I love fish so much!" };
-    constexpr bn::string_view dialogue_sample_2[] = {"Next page!"};
-    constexpr bn::string_view name[] = {"Mitsuko"};
+    constexpr bn::string_view dialogue_sample[] = { "Mitsuko", "I can't wait to begin my journey with you! This is a long dialogue. I love fish so much!" };
+    constexpr bn::string_view dialogue_sample_2[] = {"Mitsuko", "Next page!"};
+    // constexpr bn::string_view name[] = {"Mitsuko"};
 
     void test_startup_scene() {
         bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
@@ -44,7 +44,8 @@ namespace {
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
 
         // constexpr bn::string<128> dialogue_sample = "I can't wait to begin my journey with you! This is a long dialogue.#I love fish so much!";
-        bn::vector<bn::pair<bn::string_view, bn::string_view>, 2> dialogue_samples;//TODO: Can we make this a defined array?
+        // bn::vector<bn::pair<bn::string_view, bn::string_view>, 2> dialogue_samples;//TODO: Can we make this a defined array?
+        const bn::string_view dialogue_samples[][2] = { {dialogue_sample[0], dialogue_sample[1]}, {dialogue_sample_2[0], dialogue_sample_2[1]} };
         // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample));
         // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample_2));
 
@@ -123,7 +124,6 @@ namespace {
 
                 test_level.kitchen_update();
             } else if (!test_level.is_level_started()) {
-                bn::log(bn::string<32>("OOO"));
                 if (bn::keypad::a_pressed()) {
                     test_level.start_level();
                 }
@@ -131,7 +131,7 @@ namespace {
 
             if (bn::keypad::b_pressed()) {
                 bn::log(bn::string<32>("spawned"));
-                // test_level.spawn_dialogue(dialogue_samples);
+                test_level.spawn_dialogue(dialogue_samples);
             }
             
             bn::core::update();
