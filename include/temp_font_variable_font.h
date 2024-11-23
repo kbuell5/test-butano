@@ -1,3 +1,6 @@
+#ifndef TEMP_FONT_VARIABLE_FONT_H
+#define TEMP_FONT_VARIABLE_FONT_H
+
 #include "bn_sprite_font.h"
 #include "bn_utf8_characters_map.h"
 #include "bn_sprite_items_temp_font_variable.h"
@@ -131,3 +134,5 @@ namespace kt
             bn::sprite_items::temp_font_variable, temp_font_variable_font_utf8_characters_map.reference(),
             temp_font_variable_font_character_widths);
 }
+
+#endif

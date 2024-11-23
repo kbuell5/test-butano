@@ -24,6 +24,7 @@
 #include "bn_sprite_items_customers.h"
 
 #include "player.h"
+#include "dialoguebox.h"
 
 namespace kt {
     int lerp(int a, int b, int fraction) {
@@ -88,6 +89,8 @@ namespace kt {
 
                 slide_fish = 4;
                 slide_customer = num_customers + 1;
+
+                // dia = 
             };
 
             bool is_level_started() {
@@ -211,7 +214,7 @@ namespace kt {
                                 it_cfg++;
                             }
                             
-                            bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool, it_cfg->fish_type));
+                            bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool.value, it_cfg->fish_type));
                             fish_configs.erase(it_cfg);
                             it = disappear_anims.erase(it);
 
@@ -376,13 +379,13 @@ namespace kt {
                 // Check for upgrades
                 // TO-DO maybe add the other types but idk
                 // Legs?
-                if (config.config_bool & (1 << 7)) {
+                if (config.config_bool.value & (1 << 7)) {
                     bn::sprite_ptr upgrade = bn::sprite_items::legs.create_sprite(x_pos, y_pos);
                     curr_fish.push_back(upgrade);
                 }
 
                 // Makeup?
-                if (config.config_bool & (1 << 5)) curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
+                if (config.config_bool.value & (1 << 5)) curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
 
                 goal_fish_sprs.push_back(curr_fish);
             };
@@ -459,8 +462,21 @@ namespace kt {
                 }
             };
 
+            void spawn_dialogue(bn::vector<bn::pair<bn::string_view, bn::string_view>, 24> dialogue) {
+                bn::log(bn::string<32>("spawning dialogue"));
+                dia.set_map(dialogue);
+                // dia.toggle_dialogue();
+                // dia.start_dialogue();
+                // TODO make a demo dialogue cutscene reel
+            };
+
+            bool showing_dialogue() {
+                return dia.is_showing();
+            };
+
         private:
             Player player;
+            DialogueBox dia;
             bool is_started = false;
             bool sliding = false;
             bool cust_sliding = false;

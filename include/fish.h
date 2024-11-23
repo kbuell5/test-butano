@@ -28,47 +28,76 @@ namespace kt {
         }
     };
 
-    int enum_to_int(FishType type) {
-        if (type == Purple) {
-            return 0;
-        } else {
-            return 1;
-        }
+    // int enum_to_int(FishType type) { //Not required since we are already inserting 1 or 0 into the function we used this for
+    //     if (type == Purple) {
+    //         return 0;
+    //     } else {
+    //         return 1;
+    //     }
+    // };
+    
+    struct fishConfig_t{
+        uint8_t value;
+        union {
+            uint8_t legs : 1;
+            uint8_t kiss : 1;
+            uint8_t makeup : 1;
+            uint8_t sparkles : 1;
+            uint8_t reserved : 4;
+        };
     };
+    struct fishColor_t{
+        uint8_t value;
+        union {
+            uint8_t orple : 1;
+            uint8_t gween : 1;
+            uint8_t reserved : 6;
+            // uint8_t orang : 1;
+            // uint8_t lellow : 1;
+            // uint8_t reserved : 4;
+        };
+    };
+
 
     struct FishConfig {
 //          BYTE MAP  |   0  |   1  |    2   |     3    |  4  |  5  |  6  |  7  |
 //          BYTE NAME | LEGS | KISS | MAKEUP | SPARKLES | NAN | NAN | NAN | NAN |
-        uint8_t config_bool = 0b00000000;
+        // uint8_t config_bool = 0b00000000;
+        fishConfig_t config_bool;
+        // fishColor_t fish_type;
         FishType fish_type;
-        int patience_counter;
-        int patience_max;
-        int patience;
+        uint16_t patience_counter;
+        uint16_t patience_max;
+        uint16_t patience;
+        // fishStatus_t fishStatus;
         bool sell_in_progress;
 
-        FishConfig(uint8_t cfg, FishType ft) {
+        FishConfig(fishConfig_t cfg, FishType ft) {
             config_bool = cfg;
             fish_type = ft;
             patience = 3;
             // starts at a minute, subtracts in intervals of 15 seconds
-            patience_max = 3600 - (enum_to_int(ft) * 900);
+            patience_max = 3600 - (ft * 900);
             patience_counter = patience_max;
             sell_in_progress = false;
         }
 
         bool operator==(const FishConfig& other) const {
-            return (config_bool == other.config_bool && fish_type == other.fish_type);
+            return (config_bool.value == other.config_bool.value && fish_type == other.fish_type);
         }
 
         bn::string<128> to_string() {
-            return bn::format<128>("~FishConfig~\nconfig_bool: {}\nfish_type: {}\npatience: {}\n~~~~~~~~~~", config_bool, fish_type, patience);
+            return bn::format<128>("~FishConfig~\nconfig_bool: {}\nfish_type: {}\npatience: {}\n~~~~~~~~~~", config_bool.value, fish_type, patience);
         }
     };
 
     class Fish {
         public:
+            fishConfig_t defaultFish = { 0 };
+            // defaultFish.value = 0;
+
             Fish(FishType fish_type) :
-                        fish_config(FishConfig(0b00000000, fish_type)) {
+                        fish_config(FishConfig(defaultFish, fish_type)) {
                 fish_id = fish_id_counter++;
                 switch (fish_type) {
                     case Purple: {
@@ -104,7 +133,7 @@ namespace kt {
             };
 
             uint8_t get_fish_config_bool() {
-                return fish_config.config_bool;
+                return fish_config.config_bool.value;
             };
 
             FishType get_fish_type() {
@@ -112,41 +141,41 @@ namespace kt {
             };
 
             bool legs() {
-                return (fish_config.config_bool & (1 << 7));
+                return (fish_config.config_bool.value & (1 << 7));
             };
 
             bool kiss() {
-                return (fish_config.config_bool & (1 << 6));
+                return (fish_config.config_bool.value & (1 << 6));
             };
 
             bool makeup() {
-                return (fish_config.config_bool & (1 << 5));
+                return (fish_config.config_bool.value & (1 << 5));
             };
 
             bool sparkles() {
-                return (fish_config.config_bool & (1 << 4));
+                return (fish_config.config_bool.value & (1 << 4));
             };
 
             void give_legs() {
-                fish_config.config_bool |= 0b10000000;
+                fish_config.config_bool.value |= 0b10000000;
                 fish_sprites.push_back(bn::sprite_items::legs.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
             };
 
             void give_kiss() {
-                fish_config.config_bool |= 0b01000000;
+                fish_config.config_bool.value |= 0b01000000;
             };
 
             void give_makeup() {
-                fish_config.config_bool |= 0b00100000;
+                fish_config.config_bool.value |= 0b00100000;
                 fish_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
             };
 
             void give_sparkles() {
-                fish_config.config_bool |= 0b00010000;
+                fish_config.config_bool.value |= 0b00010000;
             };
 
             bool is_basic() {
-                return (fish_config.config_bool == 0);
+                return (fish_config.config_bool.value == 0);
             };
 
             void put_fish_below() {

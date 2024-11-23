@@ -18,6 +18,7 @@
 
 // ---------- my headers
 #include "level.h"
+#include "dialogue.h"
 
 // ---------- my generated files
 #include "bn_sprite_items_testturnaround.h"
@@ -27,6 +28,11 @@
 #include "bn_sprite_items_fish_item.h"
 
 namespace {
+    // TODO johan wanted the dialogue samples up here, find out why
+    constexpr bn::string_view dialogue_sample[] = { "I can't wait to begin my journey with you! This is a long dialogue. I love fish so much!" };
+    constexpr bn::string_view dialogue_sample_2[] = {"Next page!"};
+    constexpr bn::string_view name[] = {"Mitsuko"};
+
     void test_startup_scene() {
         bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
         debug_text.set_left_alignment();
@@ -37,23 +43,52 @@ namespace {
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
 
+        // constexpr bn::string<128> dialogue_sample = "I can't wait to begin my journey with you! This is a long dialogue.#I love fish so much!";
+        bn::vector<bn::pair<bn::string_view, bn::string_view>, 2> dialogue_samples;//TODO: Can we make this a defined array?
+        // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample));
+        // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample_2));
+
         // test level 1 fish config requirements
         bn::vector<kt::FishConfig, 6> fish_configs;
         // uint8_t fish_config = 0b00000000;
+        kt::fishConfig_t config_t_1;
+        config_t_1.legs = 0;
+        config_t_1.kiss = 0;
+        config_t_1.makeup = 0;
+        config_t_1.sparkles = 0;
+        
+        kt::fishConfig_t config_t_2;
+        config_t_2.legs = 1;
+        config_t_2.kiss = 0;
+        config_t_2.makeup = 0;
+        config_t_2.sparkles = 0;
+
+        kt::fishConfig_t config_t_3;
+        config_t_3.legs = 1;
+        config_t_3.kiss = 0;
+        config_t_3.makeup = 1;
+        config_t_3.sparkles = 0;
+
+        kt::fishConfig_t config_t_4;
+        config_t_4.legs = 0;
+        config_t_4.kiss = 0;
+        config_t_4.makeup = 1;
+        config_t_4.sparkles = 0;
+
         kt::FishConfig config_1 = {
-            0b00000000,
+            config_t_1,
             kt::Purple
         };
         kt::FishConfig config_2 = {
-            0b10000000,
+            config_t_2,
             kt::Purple
         };
         kt::FishConfig config_3 = {
-            0b10100000,
+            config_t_3,
             kt::Green
         };
         kt::FishConfig config_4 = {
-            0b00100000,
+            config_t_4,
             kt::Green
         };
         fish_configs.push_back(config_1); // plain purple
@@ -67,7 +102,7 @@ namespace {
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
-            if (test_level.is_level_started()) {
+            if (test_level.is_level_started() && !test_level.showing_dialogue()) {
                 if (bn::keypad::left_held()) {
                     test_level.move_player_left();
                 } else if (bn::keypad::right_held()) {
@@ -79,22 +114,24 @@ namespace {
                 }
 
                 if (bn::keypad::a_pressed()) {
-                    int maybe_money = test_level.interact_player();
+                    uint16_t maybe_money = test_level.interact_player();
                     if (maybe_money != 0) {
                         text_sprites.clear();
                         debug_text.generate(-20, -75, bn::format<32>("Money: {}", maybe_money), text_sprites);
                     }
                 }
 
-                if (bn::keypad::b_pressed()) {
-                    test_level.print_goal_fish();
-                }
-
                 test_level.kitchen_update();
-            } else {
+            } else if (!test_level.is_level_started()) {
+                bn::log(bn::string<32>("OOO"));
                 if (bn::keypad::a_pressed()) {
                     test_level.start_level();
                 }
+            }
+
+            if (bn::keypad::b_pressed()) {
+                bn::log(bn::string<32>("spawned"));
+                // test_level.spawn_dialogue(dialogue_samples);
             }
             
             bn::core::update();
