@@ -45,7 +45,7 @@ namespace {
 
         // constexpr bn::string<128> dialogue_sample = "I can't wait to begin my journey with you! This is a long dialogue.#I love fish so much!";
         // bn::vector<bn::pair<bn::string_view, bn::string_view>, 2> dialogue_samples;//TODO: Can we make this a defined array?
-        const bn::string_view dialogue_samples[][2] = { {dialogue_sample[0], dialogue_sample[1]}, {dialogue_sample_2[0], dialogue_sample_2[1]} };
+        const bn::string_view dialogue_samples[][3] = { {dialogue_sample[0], dialogue_sample[1]}, {dialogue_sample_2[0], dialogue_sample_2[1]} };
         // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample));
         // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample_2));
 

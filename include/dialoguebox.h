@@ -46,15 +46,18 @@ namespace kt {
                 return typing;
             };
 
-            void toggle_dialogue() {
+            void toggle_dialogue(const bn::string_view dialogue[][3]) {
                 if (!showing) {
                     showing = true;
+                    line_1_sprites.clear();
+                    bn::log(bn::string<128>(dialogue[0][1]));
+                    line_1.generate(-70, 30, dialogue[0][1], line_1_sprites);
                     bg.set_position(0, 150);
                     start_dialogue();
                 } else if (showing) {
                     showing = false;
                     bg.set_position(0, 0);
-                    // text_sprites.clear();
+                    line_1_sprites.clear();
                     // dialogue.generate(-50, -150, "", text_sprites);
                 }
             };
