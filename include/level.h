@@ -462,10 +462,10 @@ namespace kt {
                 }
             };
 
-            void spawn_dialogue(const bn::string_view dialogue[][3]) {
+            void spawn_dialogue(const bn::string_view dialogue[][3], uint8_t num_pages) {
                 bn::log(bn::string<32>("spawning dialogue"));
                 // dia.set_map(dialogue);
-                dia.toggle_dialogue(dialogue);
+                dia.trigger_dialogue(dialogue, num_pages);
                 // dia.start_dialogue();
                 // TODO make a demo dialogue cutscene reel
             };

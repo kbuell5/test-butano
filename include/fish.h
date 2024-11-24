@@ -93,7 +93,7 @@ namespace kt {
 
     class Fish {
         public:
-            fishConfig_t defaultFish = { 0 };
+            fishConfig_t defaultFish = { 0, {0} };
             // defaultFish.value = 0;
 
             Fish(FishType fish_type) :

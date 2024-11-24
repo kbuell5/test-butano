@@ -17,6 +17,11 @@
 #include "bn_regular_bg_items_dialogue_box.h"
 
 namespace kt {
+    constexpr int line_x_pos = -95;
+    constexpr int line_1_y_pos = 35;
+    constexpr int line_2_y_pos = 50;
+    constexpr int line_3_y_pos = 65;
+
     class DialogueBox {
         public:
             DialogueBox() :
@@ -46,18 +51,34 @@ namespace kt {
                 return typing;
             };
 
-            void toggle_dialogue(const bn::string_view dialogue[][3]) {
+            void trigger_dialogue(const bn::string_view dialogue[][3], uint8_t num_p) {
                 if (!showing) {
                     showing = true;
-                    line_1_sprites.clear();
-                    bn::log(bn::string<128>(dialogue[0][1]));
-                    line_1.generate(-70, 30, dialogue[0][1], line_1_sprites);
+                    num_pages = num_p;
+                    // line_1_sprites.clear(); // NOTE maybe unnecessary
+                    // line_2_sprites.clear();
+                    // line_3_sprites.clear();
+                    line_1.generate(line_x_pos, line_1_y_pos, dialogue[curr_page][1], line_1_sprites);
+                    line_2.generate(line_x_pos, line_2_y_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
+                    // line_3.generate(line_x_pos, line_3_y_pos, dialogue[0][3], line_3_sprites);
                     bg.set_position(0, 150);
+                    curr_page++;
                     start_dialogue();
-                } else if (showing) {
+                } else if (curr_page < num_pages) {
+                    line_1_sprites.clear();
+                    line_2_sprites.clear();
+                    // line_3_sprites.clear();
+                    line_1.generate(line_x_pos, line_1_y_pos, dialogue[curr_page][1], line_1_sprites);
+                    line_2.generate(line_x_pos, line_2_y_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
+                    curr_page++;
+                } else { // close the dialogue
                     showing = false;
                     bg.set_position(0, 0);
                     line_1_sprites.clear();
+                    line_2_sprites.clear();
+                    num_pages = 1;
+                    curr_page = 0;
+                    // line_3_sprites.clear();
                     // dialogue.generate(-50, -150, "", text_sprites);
                 }
             };
@@ -71,40 +92,40 @@ namespace kt {
             //     prepare_text();
             // };
 
-            void set_map(bn::vector<bn::pair<bn::string_view, bn::string_view>, 24> new_map) {
-                // Empty old map (if any)
-                dialogue_map.clear();
+            // void set_map(bn::vector<bn::pair<bn::string_view, bn::string_view>, 24> new_map) {
+            //     // Empty old map (if any)
+            //     dialogue_map.clear();
                 
-                // Add new map, splitting long text into multiple lines
-                for (int i = 0; i < new_map.size(); i++) {
-                    int length = 0;
-                    bn::string<128> curr_line = "";
-                    for (int j = 0; j < new_map[i].second.length(); j++) {
-                        // Check for space
-                        if (new_map[i].second[j] == ' ') {
-                            // Determine if need to split
-                            if (length + length_of_word(new_map[i].second, j) > line_width) {
-                                // Save the current line
-                                // dialogue_map.push_back(bn::make_pair<bn::string_view, bn::string_view>(bn::to_string<16>(new_map[i].first), curr_line));
-                                curr_line = "";
-                                length = 0;
-                            } else {
-                                curr_line.push_back(new_map[i].second[j]);
-                                length += temp_font_variable_font_character_widths[new_map[i].second[j] - 32];
-                            }
-                        } else {
-                            curr_line.push_back(new_map[i].second[j]);
-                            length += temp_font_variable_font_character_widths[new_map[i].second[j] - 32];
-                        }
-                    }
-                }
+            //     // Add new map, splitting long text into multiple lines
+            //     for (int i = 0; i < new_map.size(); i++) {
+            //         int length = 0;
+            //         bn::string<128> curr_line = "";
+            //         for (int j = 0; j < new_map[i].second.length(); j++) {
+            //             // Check for space
+            //             if (new_map[i].second[j] == ' ') {
+            //                 // Determine if need to split
+            //                 if (length + length_of_word(new_map[i].second, j) > line_width) {
+            //                     // Save the current line
+            //                     // dialogue_map.push_back(bn::make_pair<bn::string_view, bn::string_view>(bn::to_string<16>(new_map[i].first), curr_line));
+            //                     curr_line = "";
+            //                     length = 0;
+            //                 } else {
+            //                     curr_line.push_back(new_map[i].second[j]);
+            //                     length += temp_font_variable_font_character_widths[new_map[i].second[j] - 32];
+            //                 }
+            //             } else {
+            //                 curr_line.push_back(new_map[i].second[j]);
+            //                 length += temp_font_variable_font_character_widths[new_map[i].second[j] - 32];
+            //             }
+            //         }
+            //     }
 
-                // DEBUG print map
-                for (int i = 0; i < dialogue_map.size(); i++) {
-                    bn::log(bn::to_string<16>(dialogue_map[i].first));
-                    bn::log(bn::to_string<128>(dialogue_map[i].second));
-                }
-            }
+            //     // DEBUG print map
+            //     for (int i = 0; i < dialogue_map.size(); i++) {
+            //         bn::log(bn::to_string<16>(dialogue_map[i].first));
+            //         bn::log(bn::to_string<128>(dialogue_map[i].second));
+            //     }
+            // }
 
             auto prio() {
                 return bg.priority();
@@ -148,7 +169,9 @@ namespace kt {
             bool typing = false;
             // int char_width = 6;
             // int char_height = 16;
-            int line_width = 200;
+            // int line_width = 200;
+            uint8_t num_pages = 1;
+            uint8_t curr_page = 0;
 
             // bn::string<16> speaker = "default";
             // bn::string<128> text = "default text";
