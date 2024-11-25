@@ -55,7 +55,10 @@ namespace kt {
                 return typing;
             };
 
-            void trigger_dialogue(const bn::string_view dialogue[][3], uint8_t num_p) {
+            uint8_t trigger_dialogue(const bn::string_view dialogue[][3], uint8_t num_p) {
+                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
+                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
+                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
                 if (!showing) {
                     showing = true;
                     num_pages = num_p;
@@ -68,6 +71,7 @@ namespace kt {
                     bg.set_position(0, 150);
                     curr_page++;
                     start_dialogue();
+                    return 1;
                 } else if (curr_page < num_pages) {
                     line_1_sprites.clear();
                     line_2_sprites.clear();
@@ -76,6 +80,7 @@ namespace kt {
                     line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     curr_page++;
                     start_dialogue();
+                    return 1;
                 } else { // close the dialogue
                     showing = false;
                     bg.set_position(0, 0);
@@ -85,6 +90,7 @@ namespace kt {
                     curr_page = 0;
                     // line_3_sprites.clear();
                     // dialogue.generate(-50, -150, "", text_sprites);
+                    return 0;
                 }
             };
 
@@ -153,6 +159,11 @@ namespace kt {
                 // for (bn::sprite_ptr& line_3_sprite : line_3_sprites) {
                 //     line_3_sprite.set_y(line_3_y_pos);
                 // }
+                // wait for player to hit b
+                while (true) {
+                    if (bn::keypad::b_pressed()) break;
+                    bn::core::update();
+                }
             };
 
             int length_of_word(bn::string<128> dialogue, int start) {

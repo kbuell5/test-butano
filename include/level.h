@@ -10,6 +10,7 @@
 #include "bn_timer.h"
 #include "bn_format.h"
 #include "bn_random.h"
+#include "bn_memory.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -89,8 +90,6 @@ namespace kt {
 
                 slide_fish = 4;
                 slide_customer = num_customers + 1;
-
-                // dia = 
             };
 
             bool is_level_started() {
@@ -464,24 +463,29 @@ namespace kt {
 
             void spawn_dialogue(const bn::string_view dialogue[][3], uint8_t num_pages) {
                 bn::log(bn::string<32>("spawning dialogue"));
-                // dia.set_map(dialogue);
-                dia.trigger_dialogue(dialogue, num_pages);
-                // dia.start_dialogue();
+                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
+                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
+                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
+                DialogueBox dia;
+                // blocking
+                uint8_t i = 1;
+                while (i == 1) {
+                    i = dia.trigger_dialogue(dialogue, num_pages);
+                }
+                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
+                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
+                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
                 // TODO make a demo dialogue cutscene reel
-            };
-
-            bool showing_dialogue() {
-                return dia.is_showing();
             };
 
         private:
             Player player;
-            DialogueBox dia;
             bool is_started = false;
             bool sliding = false;
             bool cust_sliding = false;
             bool cust_leaving = false;
             bool cust_bouncing = false;
+            bool in_dialogue = false;
 
             bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4> disappear_anims;
 

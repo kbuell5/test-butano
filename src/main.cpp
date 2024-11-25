@@ -41,11 +41,7 @@ namespace {
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
 
-        // constexpr bn::string<128> dialogue_sample = "I can't wait to begin my journey with you! This is a long dialogue.#I love fish so much!";
-        // bn::vector<bn::pair<bn::string_view, bn::string_view>, 2> dialogue_samples;//TODO: Can we make this a defined array?
         const bn::string_view dialogue_samples[][3] = { {dialogue_sample[0], dialogue_sample[1], dialogue_sample[2]}, {dialogue_sample_2[0], dialogue_sample_2[1]} };
-        // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample));
-        // dialogue_samples.push_back(bn::make_pair<bn::string_view, bn::string_view>(name, dialogue_sample_2));
 
         // test level 1 fish config requirements
         bn::vector<kt::FishConfig, 6> fish_configs;
@@ -101,7 +97,7 @@ namespace {
 
         // NOTE this while loop won't work right when working with multiple scenes, need a way to break out
         while(true) {
-            if (test_level.is_level_started() && !test_level.showing_dialogue()) {
+            if (test_level.is_level_started()) {
                 if (bn::keypad::left_held()) {
                     test_level.move_player_left();
                 } else if (bn::keypad::right_held()) {
