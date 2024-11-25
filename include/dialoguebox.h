@@ -22,6 +22,8 @@ namespace kt {
     constexpr int line_2_y_pos = 50;
     constexpr int line_3_y_pos = 65;
     constexpr int offscreen_pos = 150;
+    constexpr int nameplate_x_pos = -100;
+    constexpr int nameplate_y_pos = 20;
 
     class DialogueBox {
         public:
@@ -33,12 +35,15 @@ namespace kt {
                         nameplate(temp_font_variable_font) {
                 bn::log(bn::string<32>("DialogueBox constructed"));
                 bg.set_priority(2);
+                nameplate.set_bg_priority(1);
                 line_1.set_bg_priority(1);
                 line_2.set_bg_priority(1);
                 line_3.set_bg_priority(1);
+                nameplate.set_left_alignment();
                 line_1.set_left_alignment();
                 line_2.set_left_alignment();
                 line_3.set_left_alignment();
+                nameplate.generate(nameplate_x_pos, offscreen_pos, "", nameplate_sprites);
                 line_1.generate(-50, 150, "", line_1_sprites);
                 line_2.generate(-50, 130, "", line_2_sprites);
                 line_3.generate(-50, 110, "", line_3_sprites);
@@ -62,9 +67,7 @@ namespace kt {
                 if (!showing) {
                     showing = true;
                     num_pages = num_p;
-                    // line_1_sprites.clear(); // NOTE maybe unnecessary
-                    // line_2_sprites.clear();
-                    // line_3_sprites.clear();
+                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, dialogue[curr_page][0], nameplate_sprites);
                     line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
                     line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     // line_3.generate(line_x_pos, line_3_y_pos, dialogue[0][3], line_3_sprites);
@@ -73,9 +76,11 @@ namespace kt {
                     start_dialogue();
                     return 1;
                 } else if (curr_page < num_pages) {
+                    nameplate_sprites.clear();
                     line_1_sprites.clear();
                     line_2_sprites.clear();
                     // line_3_sprites.clear();
+                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, dialogue[curr_page][0], nameplate_sprites);
                     line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
                     line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     curr_page++;
@@ -84,6 +89,7 @@ namespace kt {
                 } else { // close the dialogue
                     showing = false;
                     bg.set_position(0, 0);
+                    nameplate_sprites.clear();
                     line_1_sprites.clear();
                     line_2_sprites.clear();
                     num_pages = 1;
