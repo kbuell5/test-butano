@@ -21,6 +21,7 @@ namespace kt {
     constexpr int line_1_y_pos = 35;
     constexpr int line_2_y_pos = 50;
     constexpr int line_3_y_pos = 65;
+    constexpr int offscreen_pos = 150;
 
     class DialogueBox {
         public:
@@ -41,6 +42,9 @@ namespace kt {
                 line_1.generate(-50, 150, "", line_1_sprites);
                 line_2.generate(-50, 130, "", line_2_sprites);
                 line_3.generate(-50, 110, "", line_3_sprites);
+                line_1.set_one_sprite_per_character(true);
+                line_2.set_one_sprite_per_character(true);
+                line_3.set_one_sprite_per_character(true);
             };
 
             bool is_showing() {
@@ -58,8 +62,8 @@ namespace kt {
                     // line_1_sprites.clear(); // NOTE maybe unnecessary
                     // line_2_sprites.clear();
                     // line_3_sprites.clear();
-                    line_1.generate(line_x_pos, line_1_y_pos, dialogue[curr_page][1], line_1_sprites);
-                    line_2.generate(line_x_pos, line_2_y_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
+                    line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
+                    line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     // line_3.generate(line_x_pos, line_3_y_pos, dialogue[0][3], line_3_sprites);
                     bg.set_position(0, 150);
                     curr_page++;
@@ -68,9 +72,10 @@ namespace kt {
                     line_1_sprites.clear();
                     line_2_sprites.clear();
                     // line_3_sprites.clear();
-                    line_1.generate(line_x_pos, line_1_y_pos, dialogue[curr_page][1], line_1_sprites);
-                    line_2.generate(line_x_pos, line_2_y_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
+                    line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
+                    line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     curr_page++;
+                    start_dialogue();
                 } else { // close the dialogue
                     showing = false;
                     bg.set_position(0, 0);
@@ -82,6 +87,11 @@ namespace kt {
                     // dialogue.generate(-50, -150, "", text_sprites);
                 }
             };
+
+            void update_diaogue() {
+                // line_1_sprites[curr_char].set_y(line_1_y_pos);
+                // curr_char++;
+            }
 
             // void set_speaker(bn::string<16> new_speaker) {
             //     // speaker = new_speaker;
@@ -130,19 +140,19 @@ namespace kt {
             auto prio() {
                 return bg.priority();
             };
-
-            void update_text() {
-
-            };
         private:
             void start_dialogue() {
-                // text_sprites.clear();
-                // dialogue.generate(-100, 40, text, text_sprites);
-            };
-
-            void prepare_text() {
-                
-
+                for (bn::sprite_ptr& line_1_sprite : line_1_sprites) {
+                    line_1_sprite.set_y(line_1_y_pos);
+                    bn::core::update();
+                }
+                for (bn::sprite_ptr& line_2_sprite : line_2_sprites) {
+                    line_2_sprite.set_y(line_2_y_pos);
+                    bn::core::update();
+                }
+                // for (bn::sprite_ptr& line_3_sprite : line_3_sprites) {
+                //     line_3_sprite.set_y(line_3_y_pos);
+                // }
             };
 
             int length_of_word(bn::string<128> dialogue, int start) {
@@ -172,6 +182,7 @@ namespace kt {
             // int line_width = 200;
             uint8_t num_pages = 1;
             uint8_t curr_page = 0;
+            uint8_t curr_char = 0;
 
             // bn::string<16> speaker = "default";
             // bn::string<128> text = "default text";
