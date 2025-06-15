@@ -39,9 +39,9 @@ AUDIO       :=  audio ../butano/common/audio
 DMGAUDIO    :=  dmg_audio ../butano/common/dmg_audio
 ROMTITLE    :=  KATIE TEST
 ROMCODE     :=  KTGB
-USERFLAGS   :=  
+USERFLAGS   :=  -std=c++14
 USERASFLAGS :=  
-USERLDFLAGS :=  
+USERLDFLAGS :=  -std=c++14
 USERLIBDIRS :=  
 USERLIBS    :=  
 DEFAULTLIBS :=  
