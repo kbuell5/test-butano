@@ -15,6 +15,7 @@
 #include "temp_font_variable_font.h"
 
 #include "bn_regular_bg_items_dialogue_box.h"
+#include "bn_sprite_items_testportrait.h"
 
 namespace kt {
     constexpr int line_x_pos = -95;
@@ -24,6 +25,8 @@ namespace kt {
     constexpr int offscreen_pos = 150;
     constexpr int nameplate_x_pos = -100;
     constexpr int nameplate_y_pos = 20;
+    constexpr int portrait_x_pos = 90;
+    constexpr int portrait_y_pos = 0;
 
     class DialogueBox {
         public:
@@ -32,7 +35,8 @@ namespace kt {
                         line_1(temp_font_variable_font),
                         line_2(temp_font_variable_font),
                         line_3(temp_font_variable_font),
-                        nameplate(temp_font_variable_font) {
+                        nameplate(temp_font_variable_font),
+                        port_spr(bn::sprite_items::testportrait.create_sprite(0, 0)) {
                 bn::log(bn::string<32>("DialogueBox constructed"));
                 bg.set_priority(2);
                 nameplate.set_bg_priority(1);
@@ -61,9 +65,6 @@ namespace kt {
             };
 
             uint8_t trigger_dialogue(const bn::string_view dialogue[][3], uint8_t num_p) {
-                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
-                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
-                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
                 if (!showing) {
                     showing = true;
                     num_pages = num_p;
@@ -72,6 +73,7 @@ namespace kt {
                     line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
                     // line_3.generate(line_x_pos, line_3_y_pos, dialogue[0][3], line_3_sprites);
                     bg.set_position(0, 150);
+                    port_spr.set_position(portrait_x_pos, portrait_y_pos);
                     curr_page++;
                     start_dialogue();
                     return 1;
@@ -92,6 +94,7 @@ namespace kt {
                     nameplate_sprites.clear();
                     line_1_sprites.clear();
                     line_2_sprites.clear();
+                    port_spr.set_position(0, 0);
                     num_pages = 1;
                     curr_page = 0;
                     // line_3_sprites.clear();
@@ -189,6 +192,7 @@ namespace kt {
             bn::vector<bn::sprite_ptr, 32> line_3_sprites;
             bn::sprite_text_generator nameplate;
             bn::vector<bn::sprite_ptr, 16> nameplate_sprites;
+            bn::sprite_ptr port_spr;
 
             bn::vector<bn::pair<bn::string_view, bn::string_view>, 24> dialogue_map;
 
