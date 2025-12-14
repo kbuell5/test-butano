@@ -47,28 +47,28 @@ namespace {
         bn::vector<kt::FishConfig, 6> fish_configs;
         // uint8_t fish_config = 0b00000000;
         kt::fishConfig_t config_t_1;
-        config_t_1.legs = 0;
-        config_t_1.kiss = 0;
-        config_t_1.makeup = 0;
-        config_t_1.sparkles = 0;
+        config_t_1.config_setting.legs = 0;
+        config_t_1.config_setting.kiss = 0;
+        config_t_1.config_setting.makeup = 0;
+        config_t_1.config_setting.sparkles = 0;
         
         kt::fishConfig_t config_t_2;
-        config_t_2.legs = 1;
-        config_t_2.kiss = 0;
-        config_t_2.makeup = 0;
-        config_t_2.sparkles = 0;
+        config_t_2.config_setting.legs = 1;
+        config_t_2.config_setting.kiss = 0;
+        config_t_2.config_setting.makeup = 0;
+        config_t_2.config_setting.sparkles = 0;
 
         kt::fishConfig_t config_t_3;
-        config_t_3.legs = 1;
-        config_t_3.kiss = 0;
-        config_t_3.makeup = 1;
-        config_t_3.sparkles = 0;
+        config_t_3.config_setting.legs = 1;
+        config_t_3.config_setting.kiss = 0;
+        config_t_3.config_setting.makeup = 1;
+        config_t_3.config_setting.sparkles = 0;
 
         kt::fishConfig_t config_t_4;
-        config_t_4.legs = 0;
-        config_t_4.kiss = 0;
-        config_t_4.makeup = 1;
-        config_t_4.sparkles = 0;
+        config_t_4.config_setting.legs = 0;
+        config_t_4.config_setting.kiss = 0;
+        config_t_4.config_setting.makeup = 1;
+        config_t_4.config_setting.sparkles = 0;
 
         kt::FishConfig config_1 = {
             config_t_1,

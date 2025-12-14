@@ -36,16 +36,17 @@ namespace kt {
     //     }
     // };
     
-    struct fishConfig_t{
+    typedef union {
         uint8_t value;
-        union {
+        struct {
             uint8_t legs : 1;
             uint8_t kiss : 1;
             uint8_t makeup : 1;
             uint8_t sparkles : 1;
             uint8_t reserved : 4;
-        };
-    };
+        } config_setting;
+    } fishConfig_t;
+
     struct fishColor_t{
         uint8_t value;
         union {
@@ -93,8 +94,7 @@ namespace kt {
 
     class Fish {
         public:
-            fishConfig_t defaultFish = { 0, {0} };
-            // defaultFish.value = 0;
+            fishConfig_t defaultFish;
 
             Fish(FishType fish_type) :
                         fish_config(FishConfig(defaultFish, fish_type)) {
@@ -141,37 +141,37 @@ namespace kt {
             };
 
             bool legs() {
-                return (fish_config.config_bool.value & (1 << 7));
+                return (fish_config.config_bool.config_setting.legs);
             };
 
             bool kiss() {
-                return (fish_config.config_bool.value & (1 << 6));
+                return (fish_config.config_bool.config_setting.kiss);
             };
 
             bool makeup() {
-                return (fish_config.config_bool.value & (1 << 5));
+                return (fish_config.config_bool.config_setting.makeup);
             };
 
             bool sparkles() {
-                return (fish_config.config_bool.value & (1 << 4));
+                return (fish_config.config_bool.config_setting.sparkles);
             };
 
             void give_legs() {
-                fish_config.config_bool.value |= 0b10000000;
+                fish_config.config_bool.config_setting.legs = 1;
                 fish_sprites.push_back(bn::sprite_items::legs.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
             };
 
             void give_kiss() {
-                fish_config.config_bool.value |= 0b01000000;
+                fish_config.config_bool.config_setting.kiss = 1;
             };
 
             void give_makeup() {
-                fish_config.config_bool.value |= 0b00100000;
+                fish_config.config_bool.config_setting.makeup = 1;
                 fish_sprites.push_back(bn::sprite_items::fish_makeup.create_sprite(fish_sprites[0].position().x(), fish_sprites[0].position().y()));
             };
 
             void give_sparkles() {
-                fish_config.config_bool.value |= 0b00010000;
+                fish_config.config_bool.config_setting.sparkles = 1;
             };
 
             bool is_basic() {

@@ -378,14 +378,15 @@ namespace kt {
                 // Check for upgrades
                 // TO-DO maybe add the other types but idk
                 // Legs?
-                if (config.config_bool.value & (1 << 7)) {
+                if (config.config_bool.config_setting.legs) {
                     bn::sprite_ptr upgrade = bn::sprite_items::legs.create_sprite(x_pos, y_pos);
                     curr_fish.push_back(upgrade);
                 }
 
                 // Makeup?
-                if (config.config_bool.value & (1 << 5)) curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
-
+                if (config.config_bool.config_setting.makeup) {
+                    curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
+                }
                 goal_fish_sprs.push_back(curr_fish);
             };
 
