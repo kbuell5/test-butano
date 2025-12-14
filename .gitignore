@@ -3,3 +3,4 @@ build/
 *.sav
 *.gba
 .vscode/
+*Shortcut.lnk
