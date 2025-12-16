@@ -28,9 +28,6 @@
 #include "bn_sprite_items_fish_item.h"
 
 namespace {
-    constexpr bn::string_view dialogue_sample[] = { "Mitsuko", "I can't wait to begin my", "journey with you!" };
-    constexpr bn::string_view dialogue_sample_2[] = {"Mitsuko", "Next page!"};
-
     void test_startup_scene() {
         bn::sprite_text_generator debug_text(common::variable_8x16_sprite_font);
         debug_text.set_left_alignment();
@@ -40,8 +37,6 @@ namespace {
         bn::regular_bg_ptr map_bg = bn::regular_bg_items::map_interactive.create_bg(0, 0);
 
         const bn::regular_bg_map_item& map_item = bn::regular_bg_items::map_interactive.map_item();
-
-        const bn::string_view dialogue_samples[][3] = { {dialogue_sample[0], dialogue_sample[1], dialogue_sample[2]}, {dialogue_sample_2[0], dialogue_sample_2[1]} };
 
         // test level 1 fish config requirements
         bn::vector<kt::FishConfig, 6> fish_configs;
@@ -125,7 +120,7 @@ namespace {
 
             if (bn::keypad::b_pressed()) {
                 bn::log(bn::string<32>("spawned"));
-                test_level.spawn_dialogue(dialogue_samples, sizeof(dialogue_samples) / sizeof(dialogue_samples[0])); // TODO save as const somewhere
+                test_level.spawn_dialogue(mitsuko_angry_at_dolf, 2);
             }
             
             bn::core::update();

@@ -462,7 +462,7 @@ namespace kt {
                 }
             };
 
-            void spawn_dialogue(const bn::string_view dialogue[][3], uint8_t num_pages) {
+            void spawn_dialogue(uint8_t dialogue_to_print, uint8_t num_pages) {
                 bn::log(bn::string<32>("spawning dialogue"));
                 // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
                 // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
@@ -471,7 +471,7 @@ namespace kt {
                 // blocking
                 uint8_t i = 1;
                 while (i == 1) {
-                    i = dia.trigger_dialogue(dialogue, num_pages);
+                    i = dia.trigger_dialogue(dialogue_to_print, num_pages);
                 }
                 // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
                 // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));

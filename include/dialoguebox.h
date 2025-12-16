@@ -17,6 +17,8 @@
 #include "bn_regular_bg_items_dialogue_box.h"
 #include "bn_sprite_items_testportrait.h"
 
+#include "dialogue.h"
+
 namespace kt {
     constexpr int line_x_pos = -95;
     constexpr int line_1_y_pos = 35;
@@ -38,6 +40,7 @@ namespace kt {
                         nameplate(temp_font_variable_font),
                         port_spr(bn::sprite_items::testportrait.create_sprite(0, 0)) {
                 bn::log(bn::string<32>("DialogueBox constructed"));
+                init_dialogue();
                 bg.set_priority(2);
                 nameplate.set_bg_priority(1);
                 line_1.set_bg_priority(1);
@@ -64,15 +67,22 @@ namespace kt {
                 return typing;
             };
 
-            uint8_t trigger_dialogue(const bn::string_view dialogue[][3], uint8_t num_p) {
+            uint8_t trigger_dialogue(uint8_t dialogue_to_print, uint8_t num_p) {
                 if (!showing) {
                     showing = true;
                     num_pages = num_p;
-                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, dialogue[curr_page][0], nameplate_sprites);
-                    line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
-                    line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
-                    // line_3.generate(line_x_pos, line_3_y_pos, dialogue[0][3], line_3_sprites);
+                    char * name;
+                    char * dia1;
+                    char * dia2;
+                    char * dia3;
+                    call_dialogue(mitsuko, dialogue_to_print, name, dia1, dia2, dia3);
+                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
+                    line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
+                    line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
+                    line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
                     bg.set_position(0, 150);
+                    // Determine speaker TODO
+                    // Determine which emote portrait sprite to use
                     port_spr.set_position(portrait_x_pos, portrait_y_pos);
                     curr_page++;
                     start_dialogue();
@@ -81,10 +91,16 @@ namespace kt {
                     nameplate_sprites.clear();
                     line_1_sprites.clear();
                     line_2_sprites.clear();
-                    // line_3_sprites.clear();
-                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, dialogue[curr_page][0], nameplate_sprites);
-                    line_1.generate(line_x_pos, offscreen_pos, dialogue[curr_page][1], line_1_sprites);
-                    line_2.generate(line_x_pos, offscreen_pos, dialogue[curr_page][2], line_2_sprites); // NOTE these may need to be locked behind an if
+                    line_3_sprites.clear();
+                    char * name;
+                    char * dia1;
+                    char * dia2;
+                    char * dia3;
+                    call_dialogue(mitsuko, dialogue_to_print + curr_page, name, dia1, dia2, dia3);
+                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
+                    line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
+                    line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
+                    line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
                     curr_page++;
                     start_dialogue();
                     return 1;
@@ -94,10 +110,10 @@ namespace kt {
                     nameplate_sprites.clear();
                     line_1_sprites.clear();
                     line_2_sprites.clear();
+                    line_3_sprites.clear();
                     port_spr.set_position(0, 0);
                     num_pages = 1;
                     curr_page = 0;
-                    // line_3_sprites.clear();
                     // dialogue.generate(-50, -150, "", text_sprites);
                     return 0;
                 }
@@ -165,9 +181,10 @@ namespace kt {
                     line_2_sprite.set_y(line_2_y_pos);
                     bn::core::update();
                 }
-                // for (bn::sprite_ptr& line_3_sprite : line_3_sprites) {
-                //     line_3_sprite.set_y(line_3_y_pos);
-                // }
+                for (bn::sprite_ptr& line_3_sprite : line_3_sprites) {
+                    line_3_sprite.set_y(line_3_y_pos);
+                    bn::core::update();
+                }
                 // wait for player to hit b
                 while (true) {
                     if (bn::keypad::b_pressed()) break;
