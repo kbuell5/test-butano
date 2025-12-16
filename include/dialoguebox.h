@@ -75,14 +75,15 @@ namespace kt {
                     char * dia1;
                     char * dia2;
                     char * dia3;
-                    call_dialogue(mitsuko, dialogue_to_print, name, dia1, dia2, dia3);
+                    uint8_t * emote; // NOTE this is called emote rather than mood bc the mood enum is global, TODO make globals have a naming standard
+                    call_dialogue(mitsuko, dialogue_to_print, name, dia1, dia2, dia3, emote);
                     nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
                     line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
                     line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
                     line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
                     bg.set_position(0, 150);
-                    // Determine speaker TODO
                     // Determine which emote portrait sprite to use
+                    port_spr.set_tiles(bn::sprite_items::testportrait.tiles_item().create_tiles((*emote)));
                     port_spr.set_position(portrait_x_pos, portrait_y_pos);
                     curr_page++;
                     start_dialogue();
@@ -96,11 +97,15 @@ namespace kt {
                     char * dia1;
                     char * dia2;
                     char * dia3;
-                    call_dialogue(mitsuko, dialogue_to_print + curr_page, name, dia1, dia2, dia3);
+                    uint8_t * emote;
+                    call_dialogue(mitsuko, dialogue_to_print + curr_page, name, dia1, dia2, dia3, emote);
                     nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
                     line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
                     line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
                     line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
+                    // Determine which emote portrait sprite to use
+                    port_spr.set_tiles(bn::sprite_items::testportrait.tiles_item().create_tiles((*emote)));
+                    port_spr.set_position(portrait_x_pos, portrait_y_pos);
                     curr_page++;
                     start_dialogue();
                     return 1;

@@ -19,6 +19,7 @@ struct dialogue_part{
     char * dialogue_text1;
     char * dialogue_text2;
     char * dialogue_text3;
+    uint8_t emote;
 };
 
 enum mitsuko_dialogue : uint8_t{
@@ -32,6 +33,10 @@ enum people : uint8_t{
     dolf
 };
 
+enum mood : uint8_t {
+    happy,
+    wink
+};
 
 dialogue_part mitsuko_dialogue[16];
 dialogue_part dolf_happy_1;
@@ -55,12 +60,15 @@ void init_mitsuko(){
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text1 = mitsuko_1_1;
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text2 = mitsuko_1_2;
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text3 = mitsuko_1_3;
+    mitsuko_dialogue[mitsuko_angry_at_dolf].emote = happy;
 
     mitsuko_dialogue[mitsuko_yell].person = mitsuko;
     mitsuko_dialogue[mitsuko_yell].name = "Mitsuko";
     mitsuko_dialogue[mitsuko_yell].dialogue_text1 = mitsuko_2_1;
     mitsuko_dialogue[mitsuko_yell].dialogue_text2 = mitsuko_2_2;
-    mitsuko_dialogue[mitsuko_yell].dialogue_text3 = mitsuko_2_3;}
+    mitsuko_dialogue[mitsuko_yell].dialogue_text3 = mitsuko_2_3;
+    mitsuko_dialogue[mitsuko_yell].emote = wink;
+}
 
 void init_dolf(){
 
@@ -71,12 +79,13 @@ void init_dialogue( ){
     init_mitsuko();
 }
 
-void call_dialogue(const uint8_t person, const uint8_t dialogue_option, char *& name, char *& text1, char *& text2, char *& text3){
+void call_dialogue(const uint8_t person, const uint8_t dialogue_option, char *& name, char *& text1, char *& text2, char *& text3, uint8_t *& emote){
     if (person == mitsuko) {
         name = mitsuko_dialogue[dialogue_option].name;
         text1 = mitsuko_dialogue[dialogue_option].dialogue_text1;
         text2 = mitsuko_dialogue[dialogue_option].dialogue_text2;
         text3 = mitsuko_dialogue[dialogue_option].dialogue_text3;
+        emote = &(mitsuko_dialogue[dialogue_option].emote);
     } else {
         bn::log(bn::string<16>("haha pussy"));
     }
