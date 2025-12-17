@@ -4,11 +4,6 @@
 #include <bn_core.h>
 #include <bn_string.h>
 
-// constexpr bn::string<128> introduction = "I can't woooo to dfsfsdf my journey with you! This is a long dialogue. I love fish so much!"
-// static constexpr bn::string_view introduction[] = {
-//     "I can't woooo to dfsfsdf my journey with you! This is a long dialogue. I love fish so much!"
-// };
-
 //1. We need people
 //2. Give each line of dialogue a person
 //3. Give each line of dialogue a mood
@@ -56,14 +51,14 @@ static constexpr char * dolf_1 = "Hej!";
 void init_mitsuko(){
     //mitsuko_angry_at_dolf
     mitsuko_dialogue[mitsuko_angry_at_dolf].person = mitsuko;
-    mitsuko_dialogue[mitsuko_angry_at_dolf].name = "Mitsuko";
+    mitsuko_dialogue[mitsuko_angry_at_dolf].name = mitsuko_name;
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text1 = mitsuko_1_1;
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text2 = mitsuko_1_2;
     mitsuko_dialogue[mitsuko_angry_at_dolf].dialogue_text3 = mitsuko_1_3;
     mitsuko_dialogue[mitsuko_angry_at_dolf].emote = happy;
 
     mitsuko_dialogue[mitsuko_yell].person = mitsuko;
-    mitsuko_dialogue[mitsuko_yell].name = "Mitsuko";
+    mitsuko_dialogue[mitsuko_yell].name = mitsuko_name;
     mitsuko_dialogue[mitsuko_yell].dialogue_text1 = mitsuko_2_1;
     mitsuko_dialogue[mitsuko_yell].dialogue_text2 = mitsuko_2_2;
     mitsuko_dialogue[mitsuko_yell].dialogue_text3 = mitsuko_2_3;
