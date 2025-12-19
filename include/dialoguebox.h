@@ -66,61 +66,38 @@ namespace kt {
                 return typing;
             };
 
-            uint8_t trigger_dialogue(uint8_t dialogue_to_print, uint8_t num_p) {
-                if (!showing) {
-                    showing = true;
-                    num_pages = num_p;
-                    char * name;
-                    char * dia1;
-                    char * dia2;
-                    char * dia3;
-                    uint8_t * emote; // NOTE this is called emote rather than mood bc the mood enum is global, TODO make globals have a naming standard
-                    call_dialogue(mitsuko, dialogue_to_print, name, dia1, dia2, dia3, emote);
-                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
-                    line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
-                    line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
-                    line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
-                    bg.set_position(0, 150);
-                    // Determine which emote portrait sprite to use
-                    port_spr.set_tiles(bn::sprite_items::testportrait.tiles_item().create_tiles((*emote)));
-                    port_spr.set_position(portrait_x_pos, portrait_y_pos);
-                    curr_page++;
-                    start_dialogue();
-                    return 1;
-                } else if (curr_page < num_pages) {
-                    nameplate_sprites.clear();
-                    line_1_sprites.clear();
-                    line_2_sprites.clear();
-                    line_3_sprites.clear();
-                    char * name;
-                    char * dia1;
-                    char * dia2;
-                    char * dia3;
-                    uint8_t * emote;
-                    call_dialogue(mitsuko, dialogue_to_print + curr_page, name, dia1, dia2, dia3, emote);
-                    nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
-                    line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
-                    line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
-                    line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
-                    // Determine which emote portrait sprite to use
-                    port_spr.set_tiles(bn::sprite_items::testportrait.tiles_item().create_tiles((*emote)));
-                    port_spr.set_position(portrait_x_pos, portrait_y_pos);
-                    curr_page++;
-                    start_dialogue();
-                    return 1;
-                } else { // close the dialogue
+            uint8_t trigger_dialogue(uint8_t dialogue_to_print, uint8_t num_p) {                
+                cleanup_dialogue();
+                if (curr_page >= num_p) { // close the dialogue
                     showing = false;
                     bg.set_position(0, 0);
                     nameplate_sprites.clear();
-                    line_1_sprites.clear();
-                    line_2_sprites.clear();
-                    line_3_sprites.clear();
                     port_spr.set_position(0, 0);
-                    num_pages = 1;
                     curr_page = 0;
-                    // dialogue.generate(-50, -150, "", text_sprites);
                     return 0;
                 }
+
+                if (!showing) {
+                    showing = true;
+                    bg.set_position(0, 150);
+                }
+
+                char * name;
+                char * dia1;
+                char * dia2;
+                char * dia3;
+                uint8_t * emote; // NOTE this is called emote rather than mood bc the mood enum is global, TODO make globals have a naming standard
+                call_dialogue(mitsuko, dialogue_to_print + curr_page, name, dia1, dia2, dia3, emote);
+                nameplate.generate(nameplate_x_pos, nameplate_y_pos, name, nameplate_sprites);
+                line_1.generate(line_x_pos, offscreen_pos, dia1, line_1_sprites);
+                line_2.generate(line_x_pos, offscreen_pos, dia2, line_2_sprites);
+                line_3.generate(line_x_pos, offscreen_pos, dia3, line_3_sprites); // NOTE these may need to be locked behind an if
+                // Determine which emote portrait sprite to use
+                port_spr.set_tiles(bn::sprite_items::testportrait.tiles_item().create_tiles((*emote)));
+                port_spr.set_position(portrait_x_pos, portrait_y_pos);
+                curr_page++;
+                start_dialogue();
+                return 1;
             };
 
             auto prio() {
@@ -148,6 +125,12 @@ namespace kt {
                 }
             };
             
+            void cleanup_dialogue() {
+                line_1_sprites.clear();
+                line_2_sprites.clear();
+                line_3_sprites.clear();
+            }
+            
             bn::regular_bg_ptr bg;
             bn::sprite_text_generator line_1;
             bn::sprite_text_generator line_2;
@@ -161,7 +144,6 @@ namespace kt {
 
             bool showing = false;
             bool typing = false;
-            uint8_t num_pages = 1;
             uint8_t curr_page = 0;
     };
 }
