@@ -486,7 +486,6 @@ namespace kt {
             bool cust_sliding = false;
             bool cust_leaving = false;
             bool cust_bouncing = false;
-            bool in_dialogue = false;
 
             bn::vector<bn::pair<int, bn::sprite_animate_action<8>>, 4> disappear_anims;
 
