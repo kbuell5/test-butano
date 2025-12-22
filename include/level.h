@@ -10,6 +10,7 @@
 #include "bn_timer.h"
 #include "bn_format.h"
 #include "bn_random.h"
+#include "bn_memory.h"
 
 #include "bn_sprite_items_turnaround32.h"
 
@@ -24,6 +25,7 @@
 #include "bn_sprite_items_customers.h"
 
 #include "player.h"
+#include "dialoguebox.h"
 
 namespace kt {
     int lerp(int a, int b, int fraction) {
@@ -211,7 +213,7 @@ namespace kt {
                                 it_cfg++;
                             }
                             
-                            bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool, it_cfg->fish_type));
+                            bn::log(bn::format<128>("currently erasing fish config bool={}, type={}", it_cfg->config_bool.value, it_cfg->fish_type));
                             fish_configs.erase(it_cfg);
                             it = disappear_anims.erase(it);
 
@@ -376,14 +378,15 @@ namespace kt {
                 // Check for upgrades
                 // TO-DO maybe add the other types but idk
                 // Legs?
-                if (config.config_bool & (1 << 7)) {
+                if (config.config_bool.config_setting.legs) {
                     bn::sprite_ptr upgrade = bn::sprite_items::legs.create_sprite(x_pos, y_pos);
                     curr_fish.push_back(upgrade);
                 }
 
                 // Makeup?
-                if (config.config_bool & (1 << 5)) curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
-
+                if (config.config_bool.config_setting.makeup) {
+                    curr_fish.push_back(bn::sprite_items::fish_makeup.create_sprite(x_pos, y_pos));
+                }
                 goal_fish_sprs.push_back(curr_fish);
             };
 
@@ -457,6 +460,23 @@ namespace kt {
                 for (int i = 0; i < fish_configs.size(); i++) {
                     bn::log(fish_configs[i].to_string());
                 }
+            };
+
+            void spawn_dialogue(uint8_t dialogue_to_print, uint8_t num_pages) {
+                bn::log(bn::string<32>("spawning dialogue"));
+                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
+                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
+                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
+                DialogueBox dia;
+                // blocking
+                uint8_t i = 1;
+                while (i == 1) {
+                    i = dia.trigger_dialogue(dialogue_to_print, num_pages);
+                }
+                // bn::log(bn::string<32>("stack iwram: " + bn::to_string<32>(bn::memory::used_stack_iwram())));
+                // bn::log(bn::string<32>("static iwram: " + bn::to_string<32>(bn::memory::used_static_iwram())));
+                // bn::log(bn::string<32>("static ewram: " + bn::to_string<32>(bn::memory::used_static_ewram())));
+                // TODO make a demo dialogue cutscene reel
             };
 
         private:

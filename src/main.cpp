@@ -18,6 +18,7 @@
 
 // ---------- my headers
 #include "level.h"
+#include "dialogue.h"
 
 // ---------- my generated files
 #include "bn_sprite_items_testturnaround.h"
@@ -40,20 +41,44 @@ namespace {
         // test level 1 fish config requirements
         bn::vector<kt::FishConfig, 6> fish_configs;
         // uint8_t fish_config = 0b00000000;
+        kt::fishConfig_t config_t_1;
+        config_t_1.config_setting.legs = 0;
+        config_t_1.config_setting.kiss = 0;
+        config_t_1.config_setting.makeup = 0;
+        config_t_1.config_setting.sparkles = 0;
+        
+        kt::fishConfig_t config_t_2;
+        config_t_2.config_setting.legs = 1;
+        config_t_2.config_setting.kiss = 0;
+        config_t_2.config_setting.makeup = 0;
+        config_t_2.config_setting.sparkles = 0;
+
+        kt::fishConfig_t config_t_3;
+        config_t_3.config_setting.legs = 1;
+        config_t_3.config_setting.kiss = 0;
+        config_t_3.config_setting.makeup = 1;
+        config_t_3.config_setting.sparkles = 0;
+
+        kt::fishConfig_t config_t_4;
+        config_t_4.config_setting.legs = 0;
+        config_t_4.config_setting.kiss = 0;
+        config_t_4.config_setting.makeup = 1;
+        config_t_4.config_setting.sparkles = 0;
+
         kt::FishConfig config_1 = {
-            0b00000000,
+            config_t_1,
             kt::Purple
         };
         kt::FishConfig config_2 = {
-            0b10000000,
+            config_t_2,
             kt::Purple
         };
         kt::FishConfig config_3 = {
-            0b10100000,
+            config_t_3,
             kt::Green
         };
         kt::FishConfig config_4 = {
-            0b00100000,
+            config_t_4,
             kt::Green
         };
         fish_configs.push_back(config_1); // plain purple
@@ -79,22 +104,23 @@ namespace {
                 }
 
                 if (bn::keypad::a_pressed()) {
-                    int maybe_money = test_level.interact_player();
+                    uint16_t maybe_money = test_level.interact_player();
                     if (maybe_money != 0) {
                         text_sprites.clear();
                         debug_text.generate(-20, -75, bn::format<32>("Money: {}", maybe_money), text_sprites);
                     }
                 }
 
-                if (bn::keypad::b_pressed()) {
-                    test_level.print_goal_fish();
-                }
-
                 test_level.kitchen_update();
-            } else {
+            } else if (!test_level.is_level_started()) {
                 if (bn::keypad::a_pressed()) {
                     test_level.start_level();
                 }
+            }
+
+            if (bn::keypad::b_pressed()) {
+                bn::log(bn::string<32>("spawned"));
+                test_level.spawn_dialogue(mitsuko_angry_at_dolf, 2);
             }
             
             bn::core::update();
